@@ -31,9 +31,5 @@ while True:
     if keys[py.K_DOWN]:
         player.y += 30
 
-
     py.display.flip()
     py.time.Clock().tick(60)
-
-
-# this is a test
