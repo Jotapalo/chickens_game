@@ -2,8 +2,6 @@ import pygame as py
 
 py.init()
 
-
-
 width, height = 900, 600
 screen = py.display.set_mode((width, height))
 py.display.set_caption("pedrito con una piedra en el culito")
