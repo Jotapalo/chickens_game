@@ -34,3 +34,6 @@ while True:
 
     py.display.flip()
     py.time.Clock().tick(60)
+
+
+# this is a test
