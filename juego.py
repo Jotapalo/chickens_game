@@ -1,4 +1,4 @@
-import pygame as py
+import pygame as py 
 from random import randint as numero_aleatorio
 
 py.init()
@@ -11,6 +11,10 @@ py.display.set_caption("pedrito con una piedra en el culito")
 # Load background image
 image = py.image.load("P.JPG")
 
+# Set pause
+pause = False
+font = py.font.Font (None, 36)
+white = 255, 255,255
 
 class Player(py.Vector2):
     def __init__(self):
@@ -78,14 +82,19 @@ while True:
 
     # Player movement
     keys = py.key.get_pressed()
-    if keys[py.K_RIGHT] or keys[py.K_d]:
-        player.x += speed
-    if keys[py.K_LEFT] or keys[py.K_a]:
-        player.x -= speed
-    if keys[py.K_UP] or keys[py.K_w]:
-        player.y -= speed
-    if keys[py.K_DOWN] or keys[py.K_s]:
-        player.y += speed
+    if keys [py.K_ESCAPE]:
+        pause = not pause
+
+
+    if not pause:
+        if keys[py.K_RIGHT] or keys[py.K_d]:
+            player.x += speed
+        if keys[py.K_LEFT] or keys[py.K_a]:
+            player.x -= speed
+        if keys[py.K_UP] or keys[py.K_w]:
+            player.y -= speed
+        if keys[py.K_DOWN] or keys[py.K_s]:
+            player.y += speed
 
     # Constrain player position within the screen boundaries
     player.x = max(player.player_react.width // 2, min(player.x, width - player.player_react.width // 2))
@@ -125,7 +134,12 @@ while True:
             print("colision detectada")
             actual_ammo = 2
             list_of_power_ups.remove(power)
+    
+    if pause:
+        pause_text = font.render("STOP", True, white)
+        screen.blit(pause_text, (width // 2 - pause_text.get_width() // 2, height // 2 - pause_text.get_height() // 2))
 
     # Update display and frame rate
     py.display.flip()
     py.time.Clock().tick(60)
+
