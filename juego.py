@@ -95,3 +95,4 @@ while running:
     # Actualizar pantalla y tasa de fotogramas
     py.display.flip()
     py.time.Clock().tick(60)
+

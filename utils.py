@@ -5,12 +5,11 @@ from random import randint as numero_aleatorio
 
 power_up_active = False
 
-
 class Player(py.Vector2):
     def __init__(self):
         from juego import screen
         super().__init__(screen.get_width() / 2, screen.get_height() / 2)
-        self.image_player = py.image.load("pedorro.PNG")
+        self.image_player = py.image.load("nave.PNG")
         self.image_player = py.transform.scale(self.image_player, (70, 70))
         self.player_react = self.image_player.get_rect(center=self)
 
