@@ -3,18 +3,22 @@ from src.model.utils import PowerUp
 from src.enum import colorsMap, resEnum 
 from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
+from src.services.EnemyService import EnemyService
 from src.model.Player import Player
+from src.model.Enemy import Enemy
 
 
 py.init()
 
-# Servicios
-ShootSVC = ShootService()
 
 # Setup window display info
 width, height = 900, 600
 screen = py.display.set_mode((width, height))
 py.display.set_caption("Chickens Game")
+
+# Servicios
+ShootSVC = ShootService()
+EnemySVC = EnemyService(screen=screen)
 
 # Load background image
 font_image = py.image.load(resEnum.FONT)
@@ -33,6 +37,8 @@ running = True
 
 # Activar temporizador para power-up
 timer = PowerUp.activate_power_up(10)
+
+EnemySVC.test_spawn_enemies()
 
 # Game loop
 while running:
@@ -69,8 +75,9 @@ while running:
 
     ShootSVC.shoot_checker(player=player)
     ShootSVC.draw_bullets(screen=screen)
+    EnemySVC.draw_enemies()
 
     # Actualizar pantalla y tasa de fotogramas
     py.display.flip()
-    py.time.Clock().tick(60)
+    py.time.Clock().tick(100)
 
