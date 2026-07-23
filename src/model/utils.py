@@ -2,37 +2,10 @@ import pygame as py
 import threading
 import time
 from random import randint as numero_aleatorio
+from src.model.Bullet import Bullet
+from src.enum.resEnum import POWER_UP
 
 power_up_active = False
-
-class Player(py.Vector2):
-    def __init__(self, screen):
-        super().__init__(screen.get_width() / 2, screen.get_height() / 2)
-        self.image_player = py.image.load("src/resources/ship.PNG")
-        self.image_player = py.transform.scale(self.image_player, (70, 70))
-        self.player_react = self.image_player.get_rect(center=self)
-
-
-class Bullet(py.Vector2):
-    actual_ammo = 1
-
-    def __init__(self, pos_x, pos_y, data):
-        super().__init__(pos_x, pos_y)
-        self.image = py.image.load("src/resources/"+self.get_character(data))
-        self.image = py.transform.scale(self.image, (40, 40))
-        self.bullet_react = self.image.get_rect(center=self)
-
-    def move_up(self, speed=5):
-        self.y -= speed
-
-    @staticmethod
-    def get_character(data):
-        if data == 1:
-            return "bullet_1.png"
-        elif data == 2:
-            return "bullet_2.png"
-
-
 class TimerThread(threading.Thread):
     def __init__(self, duration, callback):
         super().__init__()
@@ -70,7 +43,7 @@ class TimerThread(threading.Thread):
 class PowerUp(py.Vector2):
     def __init__(self):
         super().__init__(numero_aleatorio(25, 825), -1)
-        self.image = py.image.load("power_up.png")
+        self.image = py.image.load(POWER_UP)
         self.image = py.transform.scale(self.image, (80, 80))
         self.gem_react = self.image.get_rect(center=self)
 
