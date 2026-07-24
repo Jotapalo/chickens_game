@@ -1,11 +1,11 @@
 import pygame as py
 
 class PlayerMovementService:
-    def __init__(self, player):
+    def __init__(self, player) -> None:
         self.player = player
         self.__player_speed = 10
 
-    def player_movement(self, screen):
+    def player_movement(self, screen) -> None:
         # Movimiento del jugador
         keys = py.key.get_pressed()
         if keys[py.K_RIGHT] or keys[py.K_d]:
