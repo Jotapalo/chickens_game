@@ -1,3 +1,5 @@
+from typing import Callable
+
 import pygame as py
 import threading
 import time
@@ -7,7 +9,7 @@ from src.enum.resEnum import POWER_UP
 
 power_up_active = False
 class TimerThread(threading.Thread):
-    def __init__(self, duration, callback):
+    def __init__(self, duration, callback) -> None:
         super().__init__()
         self.duration = duration
         self.callback = callback
@@ -15,7 +17,7 @@ class TimerThread(threading.Thread):
         self._stop_event = threading.Event()
         self.remaining_time = duration
 
-    def run(self):
+    def run(self) -> None:
         start_time = time.time()
         while self.remaining_time > 0:
             if self._stop_event.is_set():
@@ -30,28 +32,28 @@ class TimerThread(threading.Thread):
         if self.remaining_time <= 0:
             self.callback()
 
-    def pause(self):
+    def pause(self) -> None:
         self._pause_event.set()
 
-    def resume(self):
+    def resume(self) -> None:
         self._pause_event.clear()
 
-    def stop(self):
+    def stop(self) -> None:
         self._stop_event.set()
 
 
 class PowerUp(py.Vector2):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(numero_aleatorio(25, 825), -1)
         self.image = py.image.load(POWER_UP)
         self.image = py.transform.scale(self.image, (80, 80))
         self.gem_react = self.image.get_rect(center=self)
 
-    def move_down(self, speed=1):
+    def move_down(self, speed=1) -> None:
         self.y += speed
 
     @staticmethod
-    def power_up_timeout():
+    def power_up_timeout() -> None:
         global power_up_active
         power_up_active = False
         print("El power-up ha expirado.")

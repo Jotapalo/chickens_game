@@ -5,7 +5,6 @@ from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
 from src.services.EnemyService import EnemyService
 from src.model.Player import Player
-from src.model.Enemy import Enemy
 
 
 py.init()
@@ -71,9 +70,12 @@ while running:
     screen.blit(py.transform.scale(font_image, (900, 600)), (0, 0))
 
     player.PlayerMovementSVC.player_movement(screen=screen)
-    player.draw_player()
+    EnemySVC.move_enemies()
 
     ShootSVC.shoot_checker(player=player)
+
+    # Zona de dibujado
+    player.draw_player()
     ShootSVC.draw_bullets(screen=screen)
     EnemySVC.draw_enemies()
 

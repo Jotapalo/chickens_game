@@ -1,20 +1,22 @@
+from typing import Literal
+
 import pygame as py
 import src.enum.resEnum as resEnum
 
 class Bullet(py.Vector2):
     actual_ammo = 1
 
-    def __init__(self, pos_x, pos_y, data):
+    def __init__(self, pos_x, pos_y, data) -> None:
         super().__init__(pos_x, pos_y)
         self.image = py.image.load(self.get_character(data))
         self.image = py.transform.scale(self.image, (40, 40))
         self.bullet_react = self.image.get_rect(center=self)
 
-    def move_up(self, speed=5):
+    def move_up(self, speed=5) -> None:
         self.y -= speed
 
     @staticmethod
-    def get_character(data):
+    def get_character(data) -> None | Literal['src/resources/bullet_1.PNG'] | Literal['src/resources/bullet_2.PNG']:
         if data == 1:
             return resEnum.BULLET_1
         elif data == 2:
