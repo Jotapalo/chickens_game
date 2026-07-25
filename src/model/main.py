@@ -1,3 +1,4 @@
+import sys
 import pygame as py
 from src.model.utils import PowerUp
 from src.enum import colorsMap, resEnum 
@@ -5,29 +6,41 @@ from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
 from src.services.EnemyService import EnemyService
 from src.model.Player import Player
+from src.model.Screen import Screen
+
+
+# --- Leer argumentos key=value desde línea de comandos ---
+def parse_key_value_args():
+    """Convierte argv (ej: 'nivel=3 velocidad=5') en un diccionario."""
+    return dict(arg.split('=', 1) for arg in sys.argv[1:] if '=' in arg)
+
+args = parse_key_value_args()
+
+# Variables configurables con valores por defecto
+LEVEL = int(args.get('level', '1'))
+BULLET_SPEED = int(args.get('bullet_speed', '20'))
+ENEMY_SPEED = int(args.get('enemy_speed', '1'))
+DEBUG = args.get('debug', 'false').lower() == 'true'
+FPS = int(args.get('fps', '100'))
+
+print(f"Iniciando Chickens Game - Nivel {LEVEL}")
+if DEBUG:
+    print(f"Modo DEBUG activado")
+    print(f"Set FPS: {FPS}")
+# ---------------------------------------------------------
 
 
 py.init()
 
 
 # Setup window display info
-width, height = 900, 600
-screen = py.display.set_mode((width, height))
-py.display.set_caption("Chickens Game")
+screen = Screen(width=900, height=600)
 
 # Servicios
-ShootSVC = ShootService()
-EnemySVC = EnemyService(screen=screen)
+ShootSVC = ShootService(BULLET_SPEED)
+EnemySVC = EnemyService(screen=screen.surface, enemies_speed=ENEMY_SPEED)
 
-# Load background image
-font_image = py.image.load(resEnum.FONT)
-
-# Set pause
-pause = False
-font = py.font.Font(None, 36)
-pause_text = font.render("Juego en Pausa", True, colorsMap.RED)
-
-player = Player(screen=screen)
+player = Player(screen=screen.surface)
 
 # Servicio de movimiento del jugador
 player.suscribeMovementService(PlayerMovementService(player))
@@ -48,38 +61,39 @@ while running:
             py.quit()
             exit()
         elif evento.type == py.KEYDOWN and evento.key == py.K_ESCAPE:
-            pause = not pause  # Alternar pausa
-            if pause:
+            screen.pause = not screen.pause  # Alternar pausa
+            if screen.pause:
                 timer.pause()
                 print("Temporizador en pausa.")
             else:
                 timer.resume()
                 print("Temporizador reanudado.")
 
-    if pause:
-        # Si el juego está en pausa, mostrar el mensaje de pausa
-        screen.fill(colorsMap.WHITE)
-        screen.blit(pause_text, (width // 2 - pause_text.get_width() // 2, height // 2 - pause_text.get_height() // 2))
-        py.display.flip()
-        py.time.Clock().tick(30)  # Reducir la velocidad de actualización durante la pausa
+    if screen.pause:
+        screen.pause_protocol()
         continue  # Saltar el resto de actualizaciones del juego
 
     ShootSVC.increment_counter()
 
     # Dibujar fondo
-    screen.blit(py.transform.scale(font_image, (900, 600)), (0, 0))
+    screen.draw_background()
 
-    player.PlayerMovementSVC.player_movement(screen=screen)
+    player.PlayerMovementSVC.player_movement(screen=screen.surface)
     EnemySVC.move_enemies()
 
     ShootSVC.shoot_checker(player=player)
 
     # Zona de dibujado
     player.draw_player()
-    ShootSVC.draw_bullets(screen=screen)
+    ShootSVC.draw_bullets(screen=screen.surface)
     EnemySVC.draw_enemies()
+
+    # Detectar y gestionar colisiones entre balas y enemigos
+    colisiones = EnemySVC.check_collisions(ShootSVC.bulletsList)
+    if colisiones > 0:
+        if DEBUG:
+            print(f"Colisiones detectadas en este frame: {colisiones}")
 
     # Actualizar pantalla y tasa de fotogramas
     py.display.flip()
-    py.time.Clock().tick(100)
-
+    py.time.Clock().tick(FPS)

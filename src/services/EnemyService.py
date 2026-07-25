@@ -6,11 +6,12 @@ from pygame import Surface
 
 
 class EnemyService:
-    def __init__(self, screen) -> None:
+    def __init__(self, screen, enemies_speed) -> None:
         self.screen = screen
         self.screen: Surface
         self.enemiesCollection: list[Enemy] = []
         self._lock = threading.Lock()
+        self.enemies_speed = enemies_speed
 
     def new_enemy(self, posx, posy):
         return Enemy(self.screen, posx, posy)
@@ -37,8 +38,31 @@ class EnemyService:
 
     def move_enemies(self) -> None: # Simulacion temporal de fisicas
         for enemy in self.enemiesCollection:
-            enemy.y += 1
+            enemy.y += self.enemies_speed
             
+    def check_collisions(self, bulletsList: list) -> int:
+        """
+        Verifica colisiones entre todos los enemigos y todas las balas.
+        Cuando una bala colisiona con un enemigo, ambos son eliminados.
+        
+        Args:
+            bulletsList: Lista de objetos Bullet a verificar
+            
+        Returns:
+            int: Número de colisiones detectadas en este ciclo
+        """
+        collisions = 0
+        with self._lock:
+            # Iterar sobre copias para poder modificar las listas originales
+            for enemy in self.enemiesCollection[:]:
+                for bullet in bulletsList[:]:
+                    if enemy.enemy_react.colliderect(bullet.bullet_react):
+                        self.enemiesCollection.remove(enemy)
+                        bulletsList.remove(bullet)
+                        collisions += 1
+                        break  # Salir del loop de balas, este enemigo ya no existe
+        return collisions
+
     def gen_coordinates_x(self, num_enemies: int, screen_axis_size: int, range_coefficient: tuple[int, int]) -> list[int]:
         """Genera una lista de coordenadas con configuraciones personalizadas para la generacion de enemigos bajo
 ciertos parametros, genera posiciones de acuerdo a columnas imaginarias sobre un eje especifico, con posibilidad
