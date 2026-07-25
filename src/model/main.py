@@ -1,7 +1,7 @@
 import sys
 import pygame as py
+from src.levels.Level_1 import Level_1
 from src.model.utils import PowerUp
-from src.enum import colorsMap, resEnum 
 from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
 from src.services.EnemyService import EnemyService
@@ -19,7 +19,6 @@ args = parse_key_value_args()
 # Variables configurables con valores por defecto
 LEVEL = int(args.get('level', '1'))
 BULLET_SPEED = int(args.get('bullet_speed', '20'))
-ENEMY_SPEED = int(args.get('enemy_speed', '1'))
 DEBUG = args.get('debug', 'false').lower() == 'true'
 FPS = int(args.get('fps', '100'))
 
@@ -38,7 +37,7 @@ screen = Screen(width=900, height=600)
 
 # Servicios
 ShootSVC = ShootService(BULLET_SPEED)
-EnemySVC = EnemyService(screen=screen.surface, enemies_speed=ENEMY_SPEED)
+EnemySVC = EnemyService(screen=screen.surface)
 
 player = Player(screen=screen.surface)
 
@@ -50,7 +49,9 @@ running = True
 # Activar temporizador para power-up
 timer = PowerUp.activate_power_up(10)
 
-EnemySVC.test_spawn_enemies()
+# EnemySVC.test_spawn_enemies(5)
+
+level_loaded = Level_1(EnemySVC)
 
 # Game loop
 while running:
@@ -72,6 +73,11 @@ while running:
     if screen.pause:
         screen.pause_protocol()
         continue  # Saltar el resto de actualizaciones del juego
+
+    if level_loaded.lock == False:
+        level_loaded.lock = True
+        level_loaded.init_level()
+        
 
     ShootSVC.increment_counter()
 
