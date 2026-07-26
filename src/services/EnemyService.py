@@ -59,7 +59,10 @@ class EnemyService:
             for enemy in self.enemiesCollection[:]:
                 for bullet in bulletsList[:]:
                     if enemy.enemy_react.colliderect(bullet.bullet_react):
-                        self.enemiesCollection.remove(enemy)
+                        enemy.life -= bullet.damage
+                        if enemy.life <= 0:
+                            self.enemiesCollection.remove(enemy)
+
                         bulletsList.remove(bullet)
                         collisions += 1
                         break  # Salir del loop de balas, este enemigo ya no existe

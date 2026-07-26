@@ -2,20 +2,26 @@ from src.model.Bullet import Bullet
 from src.model.Player import Player
 
 class ShootService:
-    def __init__(self, bullet_speed) -> None:
+    def __init__(self, bullet_speed, player: Player) -> None:
         self.__cooldown_counter = 0
         self.bulletsList = list()
         self.bullet_speed = bullet_speed
+        self.player = player
+        
+    bullet_damage = 1 # valor por defecto
+    actual_ammo = 1 # valor por defecto
 
     def increment_counter (self) -> None:
         self.__cooldown_counter += 1
 
-    def shoot_checker (self, player: Player) -> None:
+    def shoot_checker (self) -> None:
         # Disparo de balas cada 20 frames
         if self.__cooldown_counter >= 20:
             self.__cooldown_counter = 0
-            self.bulletsList.append(Bullet(player.x, player.y,
-                                            data=Bullet.actual_ammo, bullet_speed=self.bullet_speed))
+            self.bulletsList.append(Bullet(self.player.x, self.player.y,
+                                            data=ShootService.actual_ammo, 
+                                            bullet_speed=self.bullet_speed,
+                                            damage=self.bullet_damage))
             
     def draw_bullets (self, screen) -> None: 
         # Actualizar y dibujar cada proyectil

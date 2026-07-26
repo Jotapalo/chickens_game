@@ -1,11 +1,12 @@
-import pygame as py
 import threading
 import time
-from random import randint
+import pygame as py
+from src.services.ShootService import ShootService
 from src.model.Bullet import Bullet
 from src.model.Enum import Enum
 
 power_up_active = False
+
 class TimerThread(threading.Thread):
     def __init__(self, duration, callback) -> None:
         super().__init__()
@@ -41,8 +42,9 @@ class TimerThread(threading.Thread):
 
 
 class PowerUp(py.Vector2):
-    def __init__(self) -> None:
-        super().__init__(randint(25, 825), -1)
+    def __init__(self, screen=None) -> None:
+        super().__init__(100, 100)
+        self.screen = screen
         self.image = py.image.load(Enum.resourcePath.POWER_UP)
         self.image = py.transform.scale(self.image, (80, 80))
         self.gem_react = self.image.get_rect(center=self)
@@ -50,12 +52,53 @@ class PowerUp(py.Vector2):
     def move_down(self, speed=1) -> None:
         self.y += speed
 
+    def draw_power_up(self, screen=None) -> None:
+        """Dibuja el PowerUp en la pantalla.
+        
+        Args:
+            screen: Superficie de pygame donde dibujar. Si no se proporciona,
+                    usa la screen almacenada en el constructor.
+        """
+        target_screen = screen if screen is not None else self.screen
+        if target_screen is None:
+            raise ValueError("Se necesita una superficie de pygame para dibujar el PowerUp.")
+        self.gem_react.center = (self.x, self.y)
+        target_screen.blit(self.image, self.gem_react)
+
+    def check_player_collision(self, player) -> bool:
+        """Comprueba si el PowerUp colisiona con el jugador.
+        
+        Args:
+            player: Objeto Player con un atributo player_react (pygame.Rect)
+            
+        Returns:
+            bool: True si hay colisión, False en caso contrario.
+        """
+        return self.gem_react.colliderect(player.player_react)
+
+    def update_and_draw(self, screen, player, speed=1) -> bool:
+        """Mueve el PowerUp hacia abajo, lo dibuja, y comprueba colisión con el jugador.
+        
+        Args:
+            screen: Superficie de pygame donde dibujar.
+            player: Objeto Player para detectar colisión.
+            speed: Velocidad de movimiento hacia abajo.
+            
+        Returns:
+            bool: True si el PowerUp colisionó con el jugador, False en caso contrario.
+        """
+        self.move_down(speed)
+        self.draw_power_up(screen)
+        return self.check_player_collision(player)
+
     @staticmethod
     def power_up_timeout() -> None:
         global power_up_active
         power_up_active = False
         print("El power-up ha expirado.")
-        Bullet.actual_ammo = 1
+        ShootService.actual_ammo = 1
+        ShootService.bullet_damage = 1
+
 
     @staticmethod
     def activate_power_up(duration=5):
@@ -65,5 +108,7 @@ class PowerUp(py.Vector2):
         # Iniciar el temporizador para el power-up
         timer = TimerThread(duration=duration, callback=PowerUp.power_up_timeout)
         timer.start()
-        Bullet.actual_ammo = 2
+        ShootService.actual_ammo = 2
+        ShootService.bullet_damage = 5
         return timer  # Retornar el temporizador para controlarlo si es necesario
+

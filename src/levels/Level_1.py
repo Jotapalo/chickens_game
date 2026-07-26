@@ -2,13 +2,15 @@ import threading
 import time
 from src.config.EnemyConfig import EnemyConfig
 from src.services.EnemyService import EnemyService
+from src.services.ShootService import ShootService
 
 class Level_1:
     """El nivel 1 consta de 3 stages, primero 3 enemigos con 5 de vida,
       segundo 5 enemigos con 10 de vida y tercero un enemigo con 30 de vida"""
-    def __init__(self, enemySVC):
+    def __init__(self, enemySVC, shootSVC):
         self.lock = False
         self.enemySVC: EnemyService = enemySVC
+        self.shootSVC: ShootService = shootSVC
         self.enemyInfo = [
             (3, EnemyConfig(life=5)),
             (5, EnemyConfig(life=10)),
@@ -29,5 +31,8 @@ class Level_1:
         while len(self.enemySVC.enemiesCollection) != 0:
             time.sleep(1)
         time.sleep(delay)
+
+    def shoot_manager(self):
+        self.shootSVC.shoot_checker()
         
 
