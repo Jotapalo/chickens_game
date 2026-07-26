@@ -1,7 +1,7 @@
 from typing import Literal
 
 import pygame as py
-import src.enum.resEnum as resEnum
+from src.model.Enum import Enum
 
 class Bullet(py.Vector2):
     actual_ammo = 1
@@ -19,6 +19,6 @@ class Bullet(py.Vector2):
     @staticmethod
     def get_character(data) -> None | Literal['src/resources/bullet_1.PNG'] | Literal['src/resources/bullet_2.PNG']:
         if data == 1:
-            return resEnum.BULLET_1
+            return Enum.resourcePath.BULLET_1
         elif data == 2:
-            return resEnum.BULLET_2
+            return Enum.resourcePath.BULLET_2

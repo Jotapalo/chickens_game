@@ -1,11 +1,9 @@
-from typing import Callable
-
 import pygame as py
 import threading
 import time
-from random import randint as numero_aleatorio
+from random import randint
 from src.model.Bullet import Bullet
-from src.enum.resEnum import POWER_UP
+from src.model.Enum import Enum
 
 power_up_active = False
 class TimerThread(threading.Thread):
@@ -44,8 +42,8 @@ class TimerThread(threading.Thread):
 
 class PowerUp(py.Vector2):
     def __init__(self) -> None:
-        super().__init__(numero_aleatorio(25, 825), -1)
-        self.image = py.image.load(POWER_UP)
+        super().__init__(randint(25, 825), -1)
+        self.image = py.image.load(Enum.resourcePath.POWER_UP)
         self.image = py.transform.scale(self.image, (80, 80))
         self.gem_react = self.image.get_rect(center=self)
 

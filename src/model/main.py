@@ -1,10 +1,10 @@
 import sys
 import pygame as py
 from src.levels.Level_1 import Level_1
-from src.model.utils import PowerUp
 from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
 from src.services.EnemyService import EnemyService
+from src.model.utils import PowerUp
 from src.model.Player import Player
 from src.model.Screen import Screen
 

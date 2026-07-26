@@ -1,7 +1,6 @@
 import pygame as py
 
-from src.enum import colorsMap
-from src.enum import resEnum
+from src.model.Enum import Enum
 
 class Screen:
     def __init__(self, width, height):
@@ -12,13 +11,13 @@ class Screen:
 
     def initializer(self):
         py.display.set_caption("Chickens Game")
-        self.font_image = py.image.load(resEnum.FONT)
+        self.font_image = py.image.load(Enum.resourcePath.FONT)
         self.counter_bg_1 = 0
         self.counter_bg_2 = -600
 
         self.pause = False
         self.pause_font = py.font.Font(None, 36)
-        self.pause_text = self.pause_font.render("Juego en Pausa", True, colorsMap.RED)
+        self.pause_text = self.pause_font.render("Juego en Pausa", True, Enum.colorsMap.RED)
 
     def draw_background(self):
         self.surface.blit(py.transform.scale(self.font_image, (900, 600)), (0,self.counter_bg_1))
@@ -33,7 +32,7 @@ class Screen:
 
     def pause_protocol(self):
          # Si el juego está en pausa, mostrar el mensaje de pausa
-        self.surface.fill(colorsMap.WHITE)
+        self.surface.fill(Enum.colorsMap.WHITE)
         self.surface.blit(self.pause_text,
                            (self.width // 2 - self.pause_text.get_width() // 2,
                              self.height // 2 - self.pause_text.get_height() // 2))

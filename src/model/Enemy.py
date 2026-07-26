@@ -1,6 +1,6 @@
 import pygame as py
 from src.config import EnemyConfig
-import src.enum.resEnum as resEnum
+from src.model.Enum import Enum
 
 class Enemy(py.Vector2):
     def __init__(self, screen, posx, posy, enemy_config: EnemyConfig) -> None:
@@ -10,7 +10,7 @@ class Enemy(py.Vector2):
         self.life = enemy_config.life
         self.size = enemy_config.size
 
-        self.image_enemy = py.image.load(resEnum.ENEMY)
+        self.image_enemy = py.image.load(Enum.resourcePath.ENEMY)
         self.image_enemy = py.transform.scale(self.image_enemy, (self.size[0], self.size[1]))
         self.enemy_react = self.image_enemy.get_rect(center=self)
 

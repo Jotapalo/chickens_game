@@ -1,12 +1,12 @@
 import pygame as py
-import src.enum.resEnum as resEnum
+from src.model.Enum import Enum
 from src.services.PlayerMovementService import PlayerMovementService
 
 class Player(py.Vector2):
     def __init__(self, screen) -> None:
         super().__init__(screen.get_width() / 2, screen.get_height() / 2)
         self.screen = screen
-        self.image_player = py.image.load(resEnum.SHIP)
+        self.image_player = py.image.load(Enum.resourcePath.SHIP)
         self.image_player = py.transform.scale(self.image_player, (70, 70))
         self.player_react = self.image_player.get_rect(center=self)
         self.PlayerMovementSVC: PlayerMovementService
