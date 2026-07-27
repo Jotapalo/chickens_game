@@ -4,12 +4,11 @@ import pygame as py
 from src.model.Enum import Enum
 
 class Bullet(py.Vector2):
-    actual_ammo = 1
-
-    def __init__(self, pos_x, pos_y, data, bullet_speed=5) -> None:
+    def __init__(self, pos_x, pos_y, data, bullet_speed=5, damage=1) -> None:
         super().__init__(pos_x, pos_y)
         self.image = py.image.load(self.get_character(data))
         self.image = py.transform.scale(self.image, (40, 40))
+        self.damage = damage
         self.bullet_react = self.image.get_rect(center=self)
         self.bullet_speed = bullet_speed
 

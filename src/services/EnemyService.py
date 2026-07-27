@@ -40,7 +40,9 @@ class EnemyService:
 
     def move_enemies(self) -> None: # Simulacion temporal de fisicas
         for enemy in self.enemiesCollection:
+            enemy: Enemy
             enemy.y += enemy.speed
+            
             
     def check_collisions(self, bulletsList: list) -> int:
         """
@@ -59,7 +61,11 @@ class EnemyService:
             for enemy in self.enemiesCollection[:]:
                 for bullet in bulletsList[:]:
                     if enemy.enemy_react.colliderect(bullet.bullet_react):
-                        self.enemiesCollection.remove(enemy)
+                        enemy.life -= bullet.damage
+                        enemy.lifeBar.config_life(enemy.life, enemy.max_life)
+                        if enemy.life <= 0:
+                            self.enemiesCollection.remove(enemy)
+
                         bulletsList.remove(bullet)
                         collisions += 1
                         break  # Salir del loop de balas, este enemigo ya no existe

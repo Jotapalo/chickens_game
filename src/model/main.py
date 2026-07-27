@@ -4,9 +4,11 @@ from src.levels.Level_1 import Level_1
 from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
 from src.services.EnemyService import EnemyService
-from src.model.utils import PowerUp
+from src.model.PowerUp import PowerUp
 from src.model.Player import Player
 from src.model.Screen import Screen
+from src.model.LifeBar import LifeBar
+from src.model.MessageOverlay import MessageOverlay
 
 
 # --- Leer argumentos key=value desde línea de comandos ---
@@ -34,40 +36,36 @@ py.init()
 
 # Setup window display info
 screen = Screen(width=900, height=600)
+player = Player(screen=screen.surface)
+powerUps: list[PowerUp] = list()
 
 # Servicios
-ShootSVC = ShootService(BULLET_SPEED)
+ShootSVC = ShootService(BULLET_SPEED, player)
 EnemySVC = EnemyService(screen=screen.surface)
 
-player = Player(screen=screen.surface)
 
 # Servicio de movimiento del jugador
 player.suscribeMovementService(PlayerMovementService(player))
 
 running = True
 
-# Activar temporizador para power-up
-timer = PowerUp.activate_power_up(10)
+powerUps.append(PowerUp())
 
-# EnemySVC.test_spawn_enemies(5)
-
-level_loaded = Level_1(EnemySVC)
+message_overlay = MessageOverlay(width=screen.width, height=screen.height)
+level_loaded = Level_1(EnemySVC, ShootSVC, screen=screen, message_overlay=message_overlay)
 
 # Game loop
 while running:
     for evento in py.event.get():
         if evento.type == py.QUIT:
             running = False
-            timer.stop()
             py.quit()
             exit()
         elif evento.type == py.KEYDOWN and evento.key == py.K_ESCAPE:
             screen.pause = not screen.pause  # Alternar pausa
             if screen.pause:
-                timer.pause()
                 print("Temporizador en pausa.")
             else:
-                timer.resume()
                 print("Temporizador reanudado.")
 
     if screen.pause:
@@ -87,14 +85,19 @@ while running:
     player.PlayerMovementSVC.player_movement(screen=screen.surface)
     EnemySVC.move_enemies()
 
-    ShootSVC.shoot_checker(player=player)
+    level_loaded.shoot_manager()
+
+    for power_up in powerUps:
+        if power_up.update_and_draw(screen=screen.surface, player=player):
+            power_up.activate_power_up(50)
+            powerUps.remove(power_up)
 
     # Zona de dibujado
     player.draw_player()
     ShootSVC.draw_bullets(screen=screen.surface)
     EnemySVC.draw_enemies()
-
-    # Detectar y gestionar colisiones entre balas y enemigos
+    message_overlay.draw(screen.surface)
+    # Detectar
     colisiones = EnemySVC.check_collisions(ShootSVC.bulletsList)
     if colisiones > 0:
         if DEBUG:
