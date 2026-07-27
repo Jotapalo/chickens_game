@@ -8,8 +8,8 @@ from src.model.Enum import Enum
 power_up_active = False
 
 class TimerThread(threading.Thread):
-    def __init__(self, duration, callback) -> None:
-        super().__init__()
+    def __init__(self, duration, callback, daemon: bool) -> None:
+        super().__init__(daemon=daemon)
         self.duration = duration
         self.callback = callback
         self._pause_event = threading.Event()
@@ -106,7 +106,7 @@ class PowerUp(py.Vector2):
         power_up_active = True
         print("Power-up activado.")
         # Iniciar el temporizador para el power-up
-        timer = TimerThread(duration=duration, callback=PowerUp.power_up_timeout)
+        timer = TimerThread(duration=duration, callback=PowerUp.power_up_timeout, daemon=True)
         timer.start()
         ShootService.actual_ammo = 2
         ShootService.bullet_damage = 5

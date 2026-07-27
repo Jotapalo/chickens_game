@@ -7,6 +7,8 @@ from src.services.EnemyService import EnemyService
 from src.model.PowerUp import PowerUp
 from src.model.Player import Player
 from src.model.Screen import Screen
+from src.model.LifeBar import LifeBar
+from src.model.MessageOverlay import MessageOverlay
 
 
 # --- Leer argumentos key=value desde línea de comandos ---
@@ -49,7 +51,8 @@ running = True
 
 powerUps.append(PowerUp())
 
-level_loaded = Level_1(EnemySVC, ShootSVC)
+message_overlay = MessageOverlay(width=screen.width, height=screen.height)
+level_loaded = Level_1(EnemySVC, ShootSVC, screen=screen, message_overlay=message_overlay)
 
 # Game loop
 while running:
@@ -86,15 +89,15 @@ while running:
 
     for power_up in powerUps:
         if power_up.update_and_draw(screen=screen.surface, player=player):
-            power_up.activate_power_up()
+            power_up.activate_power_up(50)
             powerUps.remove(power_up)
 
     # Zona de dibujado
     player.draw_player()
     ShootSVC.draw_bullets(screen=screen.surface)
     EnemySVC.draw_enemies()
-
-    # Detectar y gestionar colisiones entre balas y enemigos
+    message_overlay.draw(screen.surface)
+    # Detectar
     colisiones = EnemySVC.check_collisions(ShootSVC.bulletsList)
     if colisiones > 0:
         if DEBUG:
