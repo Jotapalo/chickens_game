@@ -1,5 +1,6 @@
 import threading
 from random import randint
+import pygame as py
 from src.config.EnemyConfig import EnemyConfig
 from src.model.Enemy import Enemy
 from pygame import Surface
@@ -9,8 +10,13 @@ class EnemyService:
     def __init__(self, screen) -> None:
         self.screen = screen
         self.screen: Surface
-        self.enemiesCollection: list[Enemy] = []
+        self._enemiesGroup = py.sprite.Group()
         self._lock = threading.Lock()
+
+    @property
+    def enemiesCollection(self):
+        """Mantiene compatibilidad con código que usa enemiesCollection."""
+        return list(self._enemiesGroup.sprites())
 
     def new_enemy(self, posx, posy, enemy_config: EnemyConfig):
         return Enemy(self.screen, posx, posy, enemy_config)
@@ -19,7 +25,7 @@ class EnemyService:
         """Dibuja todos los enemigos en la pantalla. 
         Debe llamarse desde el game loop principal (síncrono)."""
         with self._lock:
-            for enemy in self.enemiesCollection:
+            for enemy in self._enemiesGroup.sprites():
                 enemy: Enemy
                 enemy.draw_enemy()
 
@@ -36,39 +42,37 @@ class EnemyService:
                 enemy_config=enemy_CFG
             )
             with self._lock:
-                self.enemiesCollection.append(ACT_enemy)
+                self._enemiesGroup.add(ACT_enemy)
 
     def move_enemies(self) -> None: # Simulacion temporal de fisicas
-        for enemy in self.enemiesCollection:
+        for enemy in self._enemiesGroup.sprites():
             enemy: Enemy
             enemy.y += enemy.speed
             
             
-    def check_collisions(self, bulletsList: list) -> int:
+    def check_collisions(self, bullets_group: py.sprite.Group) -> int:
         """
         Verifica colisiones entre todos los enemigos y todas las balas.
         Cuando una bala colisiona con un enemigo, ambos son eliminados.
+        Las balas colisionadas se eliminan automáticamente del grupo gracias a dokill2=True.
         
         Args:
-            bulletsList: Lista de objetos Bullet a verificar
+            bullets_group: Grupo de pygame con objetos Bullet a verificar
             
         Returns:
             int: Número de colisiones detectadas en este ciclo
         """
         collisions = 0
         with self._lock:
-            # Iterar sobre copias para poder modificar las listas originales
-            for enemy in self.enemiesCollection[:]:
-                for bullet in bulletsList[:]:
-                    if enemy.enemy_react.colliderect(bullet.bullet_react):
-                        enemy.life -= bullet.damage
-                        enemy.lifeBar.config_life(enemy.life, enemy.max_life)
-                        if enemy.life <= 0:
-                            self.enemiesCollection.remove(enemy)
-
-                        bulletsList.remove(bullet)
-                        collisions += 1
-                        break  # Salir del loop de balas, este enemigo ya no existe
+            # groupcollide: dokill1=False (no matar enemigos automáticamente), dokill2=True (matar balas del grupo real)
+            hits = py.sprite.groupcollide(self._enemiesGroup, bullets_group, False, True)
+            for enemy, bullets in hits.items():
+                for bullet in bullets:
+                    enemy.life -= bullet.damage
+                    enemy.lifeBar.config_life(enemy.life, enemy.max_life)
+                    collisions += 1
+                if enemy.life <= 0:
+                    enemy.kill()
         return collisions
 
     def gen_coordinates_x(self, num_enemies: int, screen_axis_size: int, range_coefficient: tuple[int, int] = 0) -> list[int]:

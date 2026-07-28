@@ -1,13 +1,13 @@
 import sys
 import pygame as py
+from src.model.EventGen import EventGen
 from src.levels.Level_1 import Level_1
 from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
 from src.services.EnemyService import EnemyService
-from src.model.PowerUp import PowerUp
+from src.config.PowerUpConfig import PowerUpConfig
 from src.model.Player import Player
 from src.model.Screen import Screen
-from src.model.LifeBar import LifeBar
 from src.model.MessageOverlay import MessageOverlay
 
 
@@ -37,7 +37,6 @@ py.init()
 # Setup window display info
 screen = Screen(width=900, height=600)
 player = Player(screen=screen.surface)
-powerUps: list[PowerUp] = list()
 
 # Servicios
 ShootSVC = ShootService(BULLET_SPEED, player)
@@ -48,8 +47,13 @@ EnemySVC = EnemyService(screen=screen.surface)
 player.suscribeMovementService(PlayerMovementService(player))
 
 running = True
-
-powerUps.append(PowerUp())
+EventGenerator = EventGen(screen=screen, player=player)
+EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
+                                           fall_speed=2,
+                                           rangex=[0, 900],
+                                           rangey=20,
+                                           damage=10)
+EventGenerator.SetConfigPowerUp(5)
 
 message_overlay = MessageOverlay(width=screen.width, height=screen.height)
 level_loaded = Level_1(EnemySVC, ShootSVC, screen=screen, message_overlay=message_overlay)
@@ -75,7 +79,7 @@ while running:
     if level_loaded.lock == False:
         level_loaded.lock = True
         level_loaded.init_level()
-        
+    
 
     ShootSVC.increment_counter()
 
@@ -84,21 +88,18 @@ while running:
 
     player.PlayerMovementSVC.player_movement(screen=screen.surface)
     EnemySVC.move_enemies()
-
     level_loaded.shoot_manager()
 
-    for power_up in powerUps:
-        if power_up.update_and_draw(screen=screen.surface, player=player):
-            power_up.activate_power_up(50)
-            powerUps.remove(power_up)
+    EventGenerator.checker()
 
     # Zona de dibujado
     player.draw_player()
     ShootSVC.draw_bullets(screen=screen.surface)
     EnemySVC.draw_enemies()
     message_overlay.draw(screen.surface)
+
     # Detectar
-    colisiones = EnemySVC.check_collisions(ShootSVC.bulletsList)
+    colisiones = EnemySVC.check_collisions(ShootSVC.bulletsGroup)
     if colisiones > 0:
         if DEBUG:
             print(f"Colisiones detectadas en este frame: {colisiones}")
