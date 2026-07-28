@@ -3,9 +3,9 @@ from src.config import EnemyConfig
 from src.model.Enum import Enum
 from src.model.LifeBar import LifeBar
 
-class Enemy(py.Vector2):
+class Enemy(py.sprite.Sprite):
     def __init__(self, screen, posx, posy, enemy_config: EnemyConfig) -> None:
-        super().__init__(posx, posy)
+        super().__init__()
         self.screen = screen
         self.speed = enemy_config.speed
         self.max_life = enemy_config.life
@@ -13,15 +13,36 @@ class Enemy(py.Vector2):
         self.width, self.height = enemy_config.size
         self.lifeBar = LifeBar(screen, posx, posy, self.width, 10)
 
-        self.image_enemy = py.image.load(Enum.resourcePath.ENEMY)
-        self.image_enemy = py.transform.scale(self.image_enemy, (self.width, self.height))
-        self.enemy_react = self.image_enemy.get_rect(center=self)
+        self.image = py.image.load(Enum.resourcePath.ENEMY)
+        self.image = py.transform.scale(self.image, (self.width, self.height))
+        self.rect = self.image.get_rect(center=(posx, posy))
+
+    # Propiedades para mantener compatibilidad con código que usa .x y .y
+    @property
+    def x(self):
+        return self.rect.centerx
+
+    @x.setter
+    def x(self, value):
+        self.rect.centerx = value
+
+    @property
+    def y(self):
+        return self.rect.centery
+
+    @y.setter
+    def y(self, value):
+        self.rect.centery = value
+
+    # Mantener compatibilidad con enemy_react (código externo que lo referencia)
+    @property
+    def enemy_react(self):
+        return self.rect
 
     def draw_enemy(self) -> None: 
         # Actualizar y dibujar enemigos
-        self.enemy_react.center = (self.x, self.y)
-        self.screen.blit(self.image_enemy, self.enemy_react)
+        self.screen.blit(self.image, self.rect)
         # Sincronizar la barra de vida con la posición actual del enemigo (justo encima)
-        self.lifeBar.set_position(self.x - self.width // 2, self.y - self.height)
+        self.lifeBar.set_position(self.rect.x, self.rect.y - self.height+40)
         self.lifeBar.draw_life_bar()
         
