@@ -1,15 +1,19 @@
+from __future__ import annotations
 import pygame as py
-from src.services.ShootService import ShootService
 from src.model.Enum import Enum
 from src.model.TimerThread import TimerThread
-from src.config.PowerUpConfig import PowerUpConfig
 from random import randint
+from typing import TYPE_CHECKING
+from src.services.ShootService import ShootService
 
+if TYPE_CHECKING:
+    from src.config.PowerUpConfig import PowerUpConfig
 class PowerUp(py.sprite.Sprite):
     power_up_active = False
     def __init__(self, powerUp_CFG: PowerUpConfig, screen=None) -> None:
         super().__init__()
         self.screen = screen
+        self.shoot_service: ShootService | None = None
         self.image = py.image.load(Enum.resourcePath.POWER_UP)
         self.image = py.transform.scale(self.image, (80, 80))
 
@@ -81,20 +85,20 @@ class PowerUp(py.sprite.Sprite):
         self.draw_power_up(screen)
         return self.check_player_collision(player)
 
-    @staticmethod
-    def power_up_timeout() -> None:
+    def power_up_timeout(self) -> None:
         PowerUp.power_up_active = False
         print("El power-up ha expirado.")
-        ShootService.actual_ammo = 1
-        ShootService.bullet_damage = 1
+        if self.shoot_service:
+            ShootService.actual_ammo = 1
+            ShootService.bullet_damage = 1
 
     def activate_power_up(self):
         PowerUp.power_up_active = True
         print("Power-up activado.")
         # Iniciar el temporizador para el power-up
-        timer = TimerThread(duration=self.powerUp_CFG.duration, callback=PowerUp.power_up_timeout, daemon=True)
+        timer = TimerThread(duration=self.powerUp_CFG.duration, callback=self.power_up_timeout, daemon=True)
         timer.start()
-        ShootService.actual_ammo = 2
-        ShootService.bullet_damage = self.powerUp_CFG.damage
+        if self.shoot_service:
+            ShootService.actual_ammo = 2
+            ShootService.bullet_damage = self.powerUp_CFG.damage
         return timer  # Retornar el temporizador para controlarlo si es necesario
-

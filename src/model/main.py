@@ -1,7 +1,5 @@
 import sys
 import pygame as py
-from src.model.MainOverlay import MainOverlay
-from src.model.EventGen import EventGen
 from src.levels.Level_1 import Level_1
 from src.services.ShootService import ShootService
 from src.services.PlayerMovementService import PlayerMovementService
@@ -11,14 +9,28 @@ from src.model.Player import Player
 from src.model.Screen import Screen
 from src.model.MessageOverlay import MessageOverlay
 from src.model.Game import Game
+from src.model.MainOverlay import MainOverlay
+from src.model.EventGen import EventGen
 
+
+GameInstance = Game()
 
 # --- Leer argumentos key=value desde línea de comandos ---
-def parse_key_value_args():
+def parse_key_value_args() -> dict[str, str]:
     """Convierte argv (ej: 'nivel=3 velocidad=5') en un diccionario."""
     return dict(arg.split('=', 1) for arg in sys.argv[1:] if '=' in arg)
 
 args = parse_key_value_args()
+
+parameters = {
+    'level': int(args.get('level', '1')),
+    "bullet_speed": int(args.get('bullet_speed', '20')),
+    "debug": args.get('debug', 'false').lower() == 'true',
+    "fps": int(args.get('fps', '100'))
+}
+
+for k, v in parameters.items():
+    GameInstance.parameters[k] = v
 
 # Variables configurables con valores por defecto
 LEVEL = int(args.get('level', '1'))
@@ -40,17 +52,22 @@ py.init()
 screen = Screen(width=900, height=600)
 player = Player(screen=screen.surface)
 
+GameInstance.mainScreen = screen
+GameInstance.entities["player"] = player
 
 # Servicios
-ShootSVC = ShootService(BULLET_SPEED, player)
-EnemySVC = EnemyService(screen=screen.surface)
+ShootSVC = ShootService(GameInstance)
+EnemySVC = EnemyService(GameInstance)
+
+GameInstance.services["shoot_service"] = ShootSVC
+GameInstance.services["enemy_service"] = EnemySVC
 
 
 # Servicio de movimiento del jugador
 player.suscribeMovementService(PlayerMovementService(player))
 
 running = True
-EventGenerator = EventGen(screen=screen, player=player)
+EventGenerator = EventGen(GameInstance)
 EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
                                            fall_speed=2,
                                            rangex=[0, 900],
@@ -59,10 +76,15 @@ EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
                                            probability = 80)
 EventGenerator.SetConfigPowerUp(5)
 
-message_overlay = MessageOverlay(width=screen.width, height=screen.height)
-level_loaded = Level_1(EnemySVC, ShootSVC, screen=screen, message_overlay=message_overlay)
+message_overlay = MessageOverlay(GameInstance)
+GameInstance.layout["message_overlay"] = message_overlay
 
-mainOverlay = MainOverlay(screen, player, level_loaded)
+level_loaded = Level_1(GameInstance)
+GameInstance.level = level_loaded
+
+mainOverlay = MainOverlay(GameInstance)
+GameInstance.layout["main_overlay"] = mainOverlay
+
 
 # Game loop
 while running:
