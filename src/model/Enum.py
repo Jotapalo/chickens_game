@@ -1,6 +1,7 @@
 class ColorsMap:
     RED = (255, 0, 0)
     WHITE = (255, 255, 255)
+    GREEN = (0, 255, 0)
 
 class ResourcePath: 
     BULLET_1 = "src/resources/bullet_1.PNG"

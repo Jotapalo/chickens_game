@@ -5,7 +5,6 @@ from src.model.MessageOverlay import MessageOverlay
 from src.config.EnemyConfig import EnemyConfig
 from src.services.EnemyService import EnemyService
 from src.services.ShootService import ShootService
-import pygame as py
 
 class Level_1:
     """El nivel 1 consta de 3 stages, primero 3 enemigos con 5 de vida,
@@ -21,7 +20,8 @@ class Level_1:
             (5, EnemyConfig(life=10), "Boss"),
             (1, EnemyConfig(life=30, size=(200,200)), ""),
         ]
-        self.waves_delay = 0.1
+        self.waves_delay = 2
+        self.score = 0
 
     def init_level(self):
         t = threading.Thread(target=self.run, daemon=True)

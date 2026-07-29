@@ -1,5 +1,6 @@
 import sys
 import pygame as py
+from src.model.MainOverlay import MainOverlay
 from src.model.EventGen import EventGen
 from src.levels.Level_1 import Level_1
 from src.services.ShootService import ShootService
@@ -9,6 +10,7 @@ from src.config.PowerUpConfig import PowerUpConfig
 from src.model.Player import Player
 from src.model.Screen import Screen
 from src.model.MessageOverlay import MessageOverlay
+from src.model.Game import Game
 
 
 # --- Leer argumentos key=value desde línea de comandos ---
@@ -38,6 +40,7 @@ py.init()
 screen = Screen(width=900, height=600)
 player = Player(screen=screen.surface)
 
+
 # Servicios
 ShootSVC = ShootService(BULLET_SPEED, player)
 EnemySVC = EnemyService(screen=screen.surface)
@@ -52,11 +55,14 @@ EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
                                            fall_speed=2,
                                            rangex=[0, 900],
                                            rangey=20,
-                                           damage=10)
+                                           damage=10,
+                                           probability = 80)
 EventGenerator.SetConfigPowerUp(5)
 
 message_overlay = MessageOverlay(width=screen.width, height=screen.height)
 level_loaded = Level_1(EnemySVC, ShootSVC, screen=screen, message_overlay=message_overlay)
+
+mainOverlay = MainOverlay(screen, player, level_loaded)
 
 # Game loop
 while running:
@@ -86,23 +92,26 @@ while running:
     # Dibujar fondo
     screen.draw_background()
 
+
+    # Servicios
     player.PlayerMovementSVC.player_movement(screen=screen.surface)
     EnemySVC.move_enemies()
     level_loaded.shoot_manager()
-
     EventGenerator.checker()
+
+
+    # Detectar
+    bullet_collide = EnemySVC.check_collisions(ShootSVC.bulletsGroup, level_loaded)
+    if bullet_collide > 0:
+        if DEBUG:
+            print(f"Colisiones detectadas en este frame: {bullet_collide}")
 
     # Zona de dibujado
     player.draw_player()
     ShootSVC.draw_bullets(screen=screen.surface)
     EnemySVC.draw_enemies()
     message_overlay.draw(screen.surface)
-
-    # Detectar
-    colisiones = EnemySVC.check_collisions(ShootSVC.bulletsGroup)
-    if colisiones > 0:
-        if DEBUG:
-            print(f"Colisiones detectadas en este frame: {colisiones}")
+    mainOverlay.draw(screen.surface)
 
     # Actualizar pantalla y tasa de fotogramas
     py.display.flip()
