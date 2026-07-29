@@ -2,6 +2,7 @@ import time
 from src.model.PowerUp import PowerUp
 from src.config.PowerUpConfig import PowerUpConfig
 import threading
+from random import randint
 
 class EventGen:
     # recibe de forma recursiva powerUp List pero posteriormente se tiene que encapsular este comportamiento en otra entidad como un servicio
@@ -26,9 +27,10 @@ class EventGen:
         current_delay = int(time.perf_counter() - self.init_time)
 
         if current_delay != 0 and (current_delay) % self.powerUp_delay == 0 and self.powerUpTrigger == False:
-            self.powerUps.append(PowerUp(self.powerUp_CFG))
-            print("Spawned")
-            self.powerUpTrigger=True
+            if randint(0, 100) <= self.powerUp_CFG.probability : 
+                self.powerUps.append(PowerUp(self.powerUp_CFG))
+                print("Spawned")
+                self.powerUpTrigger=True
 
             t = threading.Thread(target=self.setter_powerUpTrigger, daemon=True)
             t.start()

@@ -5,7 +5,6 @@ from src.config.EnemyConfig import EnemyConfig
 from src.model.Enemy import Enemy
 from pygame import Surface
 
-
 class EnemyService:
     def __init__(self, screen) -> None:
         self.screen = screen
@@ -50,7 +49,7 @@ class EnemyService:
             enemy.y += enemy.speed
             
             
-    def check_collisions(self, bullets_group: py.sprite.Group) -> int:
+    def check_collisions(self, bullets_group: py.sprite.Group, level) -> int:
         """
         Verifica colisiones entre todos los enemigos y todas las balas.
         Cuando una bala colisiona con un enemigo, ambos son eliminados.
@@ -67,12 +66,15 @@ class EnemyService:
             # groupcollide: dokill1=False (no matar enemigos automáticamente), dokill2=True (matar balas del grupo real)
             hits = py.sprite.groupcollide(self._enemiesGroup, bullets_group, False, True)
             for enemy, bullets in hits.items():
-                for bullet in bullets:
+                for bullet in bullets: # Colision bala-enemigo detectada
                     enemy.life -= bullet.damage
                     enemy.lifeBar.config_life(enemy.life, enemy.max_life)
                     collisions += 1
+                    level.score += bullet.damage
+                    
                 if enemy.life <= 0:
                     enemy.kill()
+                    level.score += 10  # VALOR TEMPORAL, modificar con enemy.xp que se agregara proximamente
         return collisions
 
     def gen_coordinates_x(self, num_enemies: int, screen_axis_size: int, range_coefficient: tuple[int, int] = 0) -> list[int]:
