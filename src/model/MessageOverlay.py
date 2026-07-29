@@ -1,6 +1,7 @@
 import threading
 import pygame as py
 import time
+from src.model.Game import Game
 
 
 class MessageOverlay:
@@ -9,11 +10,11 @@ class MessageOverlay:
     El hilo llamará a show() para activar el mensaje con una duración.
     El game loop principal llamará a draw() para renderizarlo sobre el screen.
     """
-    def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
+    def __init__(self, game_context: Game):
+        self.width = game_context.mainScreen.width
+        self.height = game_context.mainScreen.height
         # Superficie con canal alfa (transparencia)
-        self.surface = py.Surface((width, height), py.SRCALPHA)
+        self.surface = py.Surface((self.width, self.height), py.SRCALPHA)
         self.active = False
         self._lock = threading.Lock()
 

@@ -1,20 +1,24 @@
 import threading
 import time
-from src.model.Screen import Screen
-from src.model.MessageOverlay import MessageOverlay
+from typing import TYPE_CHECKING
 from src.config.EnemyConfig import EnemyConfig
-from src.services.EnemyService import EnemyService
-from src.services.ShootService import ShootService
+from src.model.Game import Game
+
+
+if TYPE_CHECKING:
+    from src.services.EnemyService import EnemyService
+    from src.services.ShootService import ShootService
 
 class Level_1:
     """El nivel 1 consta de 3 stages, primero 3 enemigos con 5 de vida,
       segundo 5 enemigos con 10 de vida y tercero un enemigo con 30 de vida"""
-    def __init__(self, enemySVC, shootSVC, screen: Screen, message_overlay: MessageOverlay):
+    def __init__(self, game_context: Game):
         self.lock = False
-        self.enemySVC: EnemyService = enemySVC
-        self.shootSVC: ShootService = shootSVC
-        self.screen = screen
-        self.message_overlay = message_overlay
+        self.enemySVC: EnemyService = game_context.services["enemy_service"]
+        self.shootSVC: ShootService = game_context.services["shoot_service"]
+        self.screen = game_context.mainScreen
+        self.message_overlay = game_context.layout["message_overlay"]
+        
         self.enemyInfo = [
             (3, EnemyConfig(life=5), "Wave 2"),
             (5, EnemyConfig(life=10), "Boss"),

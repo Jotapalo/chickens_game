@@ -1,6 +1,10 @@
+from __future__ import annotations
 import pygame as py
 from src.model.Enum import Enum
-from src.services.PlayerMovementService import PlayerMovementService
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.services.PlayerMovementService import PlayerMovementService
 
 class Player(py.sprite.Sprite):
     def __init__(self, screen= None) -> None:

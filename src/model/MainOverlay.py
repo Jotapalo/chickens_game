@@ -1,21 +1,24 @@
+from __future__ import annotations
 import pygame as py
 from src.model.Player import Player
 from src.model.LifeBar import LifeBar
 from src.model.Screen import Screen
 from src.model.Enum import Enum
-from src.levels.Level_1 import Level_1
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import src.levels.Level_1 as Level_1
+    from src.model.Game import Game
 
 
 class MainOverlay:
-    def __init__(self, screen: Screen,
-                 player: Player,
-                 level_loaded: Level_1):
-        self.screen = screen
-        self.player = player
-        self.level = level_loaded
+    def __init__(self, game_context: Game):
+        self.screen = game_context.mainScreen
+        self.player = game_context.entities["player"]
+        self.level = game_context.level
 
         # Barra de vida del jugador (esquina inferior izquierda)
-        self.player_life_bar = LifeBar(screen.surface, 
+        self.player_life_bar = LifeBar(self.screen.surface, 
                                        70,
                                        self.screen.height - 30,
                                        100,
@@ -35,7 +38,7 @@ class MainOverlay:
         self.font_1 = py.font.SysFont("Arial", 30)
         self.surface_text_score = self.font_1.render(f"SCORE: {self.level.score}", True, Enum.colorsMap.WHITE)
         self.rect_text = self.surface_text_score.get_rect()
-        self.rect_text.center = (screen.width//2, 20)
+        self.rect_text.center = (self.screen.width//2, 20)
 
     def draw(self, screen_surface: py.Surface) -> None:
         """Dibuja el ícono del jugador y la barra de vida en la esquina inferior izquierda."""

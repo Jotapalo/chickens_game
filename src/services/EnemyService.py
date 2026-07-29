@@ -1,14 +1,19 @@
+from __future__ import annotations
 import threading
 from random import randint
 import pygame as py
+from typing import TYPE_CHECKING
+
 from src.config.EnemyConfig import EnemyConfig
 from src.model.Enemy import Enemy
 from pygame import Surface
 
+if TYPE_CHECKING:
+    from src.model.Game import Game
+
 class EnemyService:
-    def __init__(self, screen) -> None:
-        self.screen = screen
-        self.screen: Surface
+    def __init__(self, game_context: Game) -> None:
+        self.screen: Surface = game_context.mainScreen.surface
         self._enemiesGroup = py.sprite.Group()
         self._lock = threading.Lock()
 
