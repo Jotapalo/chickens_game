@@ -3,13 +3,14 @@ import time
 from typing import TYPE_CHECKING
 from src.config.EnemyConfig import EnemyConfig
 from src.model.Game import Game
+from src.levels.Level import Level
 
 
 if TYPE_CHECKING:
     from src.services.EnemyService import EnemyService
     from src.services.ShootService import ShootService
 
-class Level_1:
+class Level_1(Level):
     """El nivel 1 consta de 3 stages, primero 3 enemigos con 5 de vida,
       segundo 5 enemigos con 10 de vida y tercero un enemigo con 30 de vida"""
     def __init__(self, game_context: Game):
