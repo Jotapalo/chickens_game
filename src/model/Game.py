@@ -11,3 +11,4 @@ class Game:
         self.parameters = dict()
         self.level: Level = None
         self.mainScreen: Screen = None
+        self.win = False

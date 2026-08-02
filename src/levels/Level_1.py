@@ -19,6 +19,7 @@ class Level_1(Level):
         self.shootSVC: ShootService = game_context.services["shoot_service"]
         self.screen = game_context.mainScreen
         self.message_overlay = game_context.layout["message_overlay"]
+        self.game = game_context
         
         self.enemyInfo = [
             (3, EnemyConfig(life=5), "Wave 2"),
@@ -38,6 +39,8 @@ class Level_1(Level):
             self.wait_for_killed_enemies(0 if iterator == len(self.enemyInfo)-1 else self.waves_delay)
             if iterator < len(self.enemyInfo) - 1:
                 self.message_overlay.show(self.enemyInfo[iterator][2], duration=2)
+
+        self.game.win = True
 
     def wait_for_killed_enemies(self, delay: int=1):
         while len(self.enemySVC.enemiesCollection) != 0:

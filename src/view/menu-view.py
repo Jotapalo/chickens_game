@@ -2,13 +2,17 @@ import os
 import subprocess
 import threading
 import tkinter as tk
-from tkinter import ttk, messagebox, Canvas
+from tkinter import ttk, Canvas
 from PIL import Image, ImageTk
 from src.model.Enum import Enum
 
 class MenuView(tk.Tk):
     def __init__(self, screenName = None, baseName = None, className = "Tk", useTk = True, sync = False, use = None):
         super().__init__(screenName, baseName, className, useTk, sync, use)
+
+        self.param_fps = "100"
+        self.param_bullet_speed = "20"
+        self.param_debug = "false"
 
         self.title("Chickens Game")
         self.geometry("735x410")
@@ -28,23 +32,35 @@ class MenuView(tk.Tk):
         self.canvas.image = photo
 
         # Create a style object
-        style = ttk.Style(self.frame_main)
-        style.theme_use("clam")
+        style_button = ttk.Style(self.frame_main)
+        style_button.theme_use("clam")
 
-        style.configure("Custom.TButton",
+        style_button.configure("Custom.TButton",
             font=("Cascadia Code", 12),
             foreground="blue",
             padding=10,
             )
 
+        style_label = ttk.Style(self.frame_main)
+        style_label.theme_use("clam")
+        style_label.configure("Custom.TLabel",
+                    font=("Cascadia Code", 12),
+                    foreground="blue",
+                    background="black"
+                    )
+
         self.load_main_page()
 
         
     def load_main_page(self):
+        for child in self.canvas.winfo_children():
+            child.destroy()
+        
         # Configuracion canvas
         self.canvas.grid_columnconfigure(0, weight=1)
-        self.canvas.grid_rowconfigure(0, weight=1)
-        self.canvas.grid_rowconfigure(1, weight=1)
+        self.canvas.grid_rowconfigure((0, 1), weight=1)
+        self.canvas.grid_rowconfigure((2,5), weight=0)
+        self.canvas.grid_columnconfigure((1), weight=0)
         
         # botones sobre canvas
         self.button_start_game = ttk.Button(self.canvas, text="iniciar partida", style="Custom.TButton", command=self.load_levels_page)
@@ -68,7 +84,43 @@ class MenuView(tk.Tk):
                                  style="Custom.TButton",
                                    command=lambda i=i: self.load_level(levels[i]))
             button.pack(padx=10, pady=10)
-            
+
+        ttk.Button(self.canvas, text="Back", style="Custom.TButton", command=self.load_main_page).pack(padx=10, pady=10)
+
+    def load_settings_page(self):
+        for child in self.canvas.winfo_children():
+            child.destroy()
+
+        self.canvas.grid_rowconfigure((0,1), weight=0)
+
+        self.canvas.grid_columnconfigure((0,1), weight=1)
+        self.canvas.grid_rowconfigure((0,2), weight=1)
+
+        ttk.Label(self.canvas, text="FPS", style="Custom.TLabel").grid(column=0, row=0)
+        ttk.Label(self.canvas, text="Bullet speed", style="Custom.TLabel").grid(column=0, row=1)
+        ttk.Label(self.canvas, text="Debug", style="Custom.TLabel").grid(column=0, row=2)
+
+        self.entry_fps = tk.Entry(self.canvas)
+        self.entry_fps.grid(column=1, row=0)
+        self.entry_fps.insert(0, self.param_fps)
+        self.entry_bullet_speed = tk.Entry(self.canvas)
+        self.entry_bullet_speed.grid(column=1, row=1)
+        self.entry_bullet_speed.insert(0, self.param_bullet_speed)
+        self.entry_debug = tk.Entry(self.canvas)
+        self.entry_debug.grid(column=1, row=2)
+        self.entry_debug.insert(0, self.param_debug)
+
+
+        # Back and save buttons 
+        ttk.Button(self.canvas, text="Back", style="Custom.TButton", command=self.load_main_page).grid(column=0, row=3)
+        ttk.Button(self.canvas, text="Save", style="Custom.TButton", 
+                   command=self.act_parameters).grid(column=1, row=3)
+
+    def act_parameters(self):
+        self.param_fps = self.entry_fps.get()
+        self.param_bullet_speed = self.entry_bullet_speed.get()
+        self.param_debug = self.entry_debug.get()
+        self.load_main_page()
 
     def load_level(self, level_id):
         # Extraer el número del nivel (ej: "Level_1" -> 1)
@@ -84,7 +136,7 @@ class MenuView(tk.Tk):
 
         # Ejecutar el juego en un proceso separado con "py -m src.model.main"
         game_process = subprocess.Popen(
-            ["py", "-m", "src.model.main", f"level={level_num}"],
+            ["py", "-m", "src.model.main", f"level={level_num}", f"fps={self.param_fps}", f"debug={self.param_debug}", f"bullet_speed{self.param_bullet_speed}"],
             cwd=project_root,
         )
 
@@ -99,7 +151,6 @@ class MenuView(tk.Tk):
         # Programar la destrucción del menú en el hilo principal de Tk
         self.after(0, self.destroy)
 
-    def load_settings_page(self): ...
 
 if __name__ == "__main__":
     root = MenuView()

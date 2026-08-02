@@ -20,5 +20,5 @@ Para activar el entorno virtual
 ## Ejecucion
 Desde la raiz del proyecto ejecutar
 ```bash
-src/model/game.py
+py -m src.view.menu-view
 ```

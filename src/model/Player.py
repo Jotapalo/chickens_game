@@ -15,6 +15,7 @@ class Player(py.sprite.Sprite):
         self.rect = self.image.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2))
         self.PlayerMovementSVC: PlayerMovementService
         self.player_max_life = 100
+        self.player_life = self.player_max_life
 
     # Propiedades para mantener compatibilidad con código que usa .x y .y
     @property
@@ -40,6 +41,29 @@ class Player(py.sprite.Sprite):
 
     def suscribeMovementService(self, PlayerMovementService: PlayerMovementService) -> None:
         self.PlayerMovementSVC = PlayerMovementService
+
+    def check_collisions(self, enemies) -> list:
+        """Detecta colisiones entre el jugador y los enemigos.
+
+        Cuando un enemigo colisiona con el jugador y aún puede dañar
+        (enemy.can_damage == True), la vida del jugador se reduce en
+        enemy.damage y el enemigo pasa a can_damage = False para no
+        seguir haciendo daño en colisiones posteriores (efecto "one shot").
+
+        Args:
+            enemies: Iterable de enemigos (lista, Group de pygame, etc.).
+
+        Returns:
+            list: Lista de enemigos que colisionaron en este ciclo.
+        """
+        collided_enemies = []
+        for enemy in enemies:
+            if py.sprite.collide_rect(self, enemy):
+                collided_enemies.append(enemy)
+                if enemy.can_damage:
+                    self.player_life -= enemy.damage
+                    enemy.can_damage = False
+        return collided_enemies
 
     def draw_player(self, rectangle:py.Rect | None = None) -> None: 
         if rectangle == None:

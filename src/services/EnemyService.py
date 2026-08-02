@@ -52,7 +52,31 @@ class EnemyService:
         for enemy in self._enemiesGroup.sprites():
             enemy: Enemy
             enemy.y += enemy.speed
-            
+
+    def check_bottom_boundary(self) -> list[Enemy]:
+        """Detecta qué enemigos han tocado el borde inferior de la pantalla.
+
+        Un enemigo se considera "en el borde inferior" cuando el borde inferior
+        de su rectángulo (rect.bottom) alcanza o supera la altura de la pantalla.
+
+        Returns:
+            list[Enemy]: Lista de enemigos que están tocando el borde inferior.
+        """
+        bottom_edge = self.screen.get_height()
+        with self._lock:
+            return [
+                enemy for enemy in self._enemiesGroup.sprites()
+                if enemy.rect.bottom >= bottom_edge
+            ]
+
+    def any_enemy_at_bottom(self) -> bool:
+        """Indica si al menos un enemigo ha tocado el borde inferior de la pantalla.
+
+        Returns:
+            bool: True si existe algún enemigo tocando el borde inferior.
+        """
+        return len(self.check_bottom_boundary()) > 0
+
             
     def check_collisions(self, bullets_group: py.sprite.Group, level) -> int:
         """

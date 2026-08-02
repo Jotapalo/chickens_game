@@ -88,6 +88,7 @@ GameInstance.layout["main_overlay"] = mainOverlay
 
 # Game loop
 while running:
+    # Eventos
     for evento in py.event.get():
         if evento.type == py.QUIT:
             running = False
@@ -95,14 +96,19 @@ while running:
             exit()
         elif evento.type == py.KEYDOWN and evento.key == py.K_ESCAPE:
             screen.pause = not screen.pause  # Alternar pausa
-            if screen.pause:
-                print("Temporizador en pausa.")
-            else:
-                print("Temporizador reanudado.")
+
+    if GameInstance.win:
+        screen.win_protocol()
+        continue
+
+    if screen.game_over or player.player_life <= 0:
+        screen.game_over_protocol()
+        continue
 
     if screen.pause:
         screen.pause_protocol()
         continue  # Saltar el resto de actualizaciones del juego
+
 
     if level_loaded.lock == False:
         level_loaded.lock = True
@@ -121,12 +127,13 @@ while running:
     level_loaded.shoot_manager()
     EventGenerator.checker()
 
-
     # Detectar
-    bullet_collide = EnemySVC.check_collisions(ShootSVC.bulletsGroup, level_loaded)
-    if bullet_collide > 0:
-        if DEBUG:
-            print(f"Colisiones detectadas en este frame: {bullet_collide}")
+    EnemySVC.check_collisions(ShootSVC.bulletsGroup, level_loaded)
+    player.check_collisions(EnemySVC.enemiesCollection)
+    
+    if EnemySVC.any_enemy_at_bottom():
+        screen.game_over = True
+        continue
 
     # Zona de dibujado
     player.draw_player()

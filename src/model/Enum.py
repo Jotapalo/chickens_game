@@ -10,6 +10,7 @@ class ResourcePath:
     POWER_UP = "src/resources/power_up.PNG"
     SHIP = "src/resources/ship.PNG"
     ENEMY = "src/resources/enemy.PNG"
+    PAUSE_FONT = "src/fonts/Debrosee-ALPnL.ttf"
 
 class Enum:
     def __init__(self):
