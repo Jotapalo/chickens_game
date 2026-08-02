@@ -12,6 +12,8 @@ class Enemy(py.sprite.Sprite):
         self.life = enemy_config.life
         self.width, self.height = enemy_config.size
         self.lifeBar = LifeBar(screen, posx, posy, self.width, 10)
+        self.damage = enemy_config.damage
+        self.can_damage = True
 
         self.image = py.image.load(Enum.resourcePath.ENEMY)
         self.image = py.transform.scale(self.image, (self.width, self.height))
