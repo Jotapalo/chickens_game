@@ -15,8 +15,7 @@ class Enemy(py.sprite.Sprite):
         self.damage = enemy_config.damage
         self.can_damage = True
 
-        self.image = py.image.load(Enum.resourcePath.ENEMY)
-        self.image = py.transform.scale(self.image, (self.width, self.height))
+        self.image = py.transform.scale(Enum.Image.Enemy, (self.width, self.height))
         self.rect = self.image.get_rect(center=(posx, posy))
 
     # Propiedades para mantener compatibilidad con código que usa .x y .y
@@ -45,6 +44,6 @@ class Enemy(py.sprite.Sprite):
         # Actualizar y dibujar enemigos
         self.screen.blit(self.image, self.rect)
         # Sincronizar la barra de vida con la posición actual del enemigo (justo encima)
-        self.lifeBar.set_position(self.rect.x, self.rect.y - self.height+40)
+        self.lifeBar.set_position(self.rect.x, self.rect.y)
         self.lifeBar.draw_life_bar()
         

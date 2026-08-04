@@ -35,7 +35,7 @@ class EnemyService:
 
     def test_spawn_enemies(self, num_enemies, 
                            enemy_CFG: EnemyConfig = EnemyConfig(),
-                           CF_range: tuple[int, int] = (0, 100)) -> None: # Test de spawneo de enemigos temporal
+                           CF_range: tuple[int, int] = (0, 100)) -> None: # Test de spawneo de enemigos 
         """Genera enemigos en posiciones aleatorias (síncrono)."""
         coox = self.gen_coordinates_x(num_enemies, self.screen.get_width(), CF_range)
 
