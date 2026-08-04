@@ -7,12 +7,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.model.Game import Game
 
-class ShootService:
+class PlayerService:
     def __init__(self, game_context: Game) -> None:
+        self.screen = game_context.mainScreen
         self.__cooldown_counter = 0
         self.bulletsGroup = py.sprite.Group()
         self.bullet_speed = game_context.parameters.get("bullet_speed")
         self.player = game_context.entities.get("player")
+        self.__player_speed = 10
         
     bullet_damage = 1 # valor por defecto
     actual_ammo = 1 # valor por defecto
@@ -25,12 +27,31 @@ class ShootService:
     def increment_counter (self) -> None:
         self.__cooldown_counter += 1
 
+    def player_movement(self) -> None:
+        # Movimiento del jugador (antes PlayerMovementService, ahora encapsulado)
+        screen = self.screen.surface
+        keys = py.key.get_pressed()
+        if keys[py.K_RIGHT] or keys[py.K_d]:
+            self.player.x += self.__player_speed
+        if keys[py.K_LEFT] or keys[py.K_a]:
+            self.player.x -= self.__player_speed
+        if keys[py.K_UP] or keys[py.K_w]:
+            self.player.y -= self.__player_speed
+        if keys[py.K_DOWN] or keys[py.K_s]:
+            self.player.y += self.__player_speed
+
+        # Limitar el movimiento del jugador a la pantalla
+        self.player.x = max(self.player.player_react.width // 2,
+                            min(self.player.x, screen.get_width() - self.player.player_react.width // 2))
+        self.player.y = max(self.player.player_react.width // 2,
+                            min(self.player.y, screen.get_height() - self.player.player_react.width // 2))
+
     def shoot_checker (self) -> None:
         # Disparo de balas cada 20 frames
         if self.__cooldown_counter >= 20:
             self.__cooldown_counter = 0
             new_bullet = Bullet(self.player.x, self.player.y,
-                                data=ShootService.actual_ammo, 
+                                data=PlayerService.actual_ammo, 
                                 bullet_speed=self.bullet_speed,
                                 damage=self.bullet_damage)
             self.bulletsGroup.add(new_bullet)

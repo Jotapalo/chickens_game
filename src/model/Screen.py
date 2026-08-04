@@ -16,14 +16,14 @@ class Screen:
         self.counter_bg_2 = -600
 
         self.pause = False
-        self.pause_font = py.font.Font(Enum.resourcePath.PAUSE_FONT, 36)
+        self.pause_font = py.font.Font(Enum.resourcePath.DEFAULT_FONT, 36)
         self.pause_text = self.pause_font.render("Juego en Pausa", True, Enum.colorsMap.RED)
 
         self.game_over = False
-        self.game_over_font = py.font.Font(Enum.resourcePath.PAUSE_FONT, 45)
+        self.game_over_font = py.font.Font(Enum.resourcePath.DEFAULT_FONT, 45)
         self.game_over_font = self.game_over_font.render("GAME OVER", True, Enum.colorsMap.RED)
 
-        self.win_font = py.font.Font(Enum.resourcePath.PAUSE_FONT, 45)
+        self.win_font = py.font.Font(Enum.resourcePath.DEFAULT_FONT, 45)
         self.win_font = self.win_font.render("YOU WIN!", True, Enum.colorsMap.GREEN)
 
     def draw_background(self):

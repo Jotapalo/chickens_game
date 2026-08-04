@@ -2,6 +2,7 @@ from __future__ import annotations
 import pygame as py
 from src.model.LifeBar import LifeBar
 from src.model.Enum import Enum
+from src.services.PlayerService import PlayerService
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,6 +17,12 @@ class MainOverlay:
         self.player: Player = game_context.entities["player"]
         self.level = game_context.level
 
+        # === Nueva instancia de la imagen del jugador en la esquina inferior izquierda ===
+        self.player_icon = Enum.Image.Player_icon
+        self.player_icon_rect = self.player_icon.get_rect()
+        # Posicionar en el borde inferior izquierdo con un pequeño margen
+        self.player_icon_rect.topleft = (20, self.screen.height - self.player_icon_rect.height - 10)
+
         # Barra de vida del jugador (esquina inferior izquierda)
         self.player_life_bar = LifeBar(self.screen.surface, 
                                        70,
@@ -26,24 +33,47 @@ class MainOverlay:
 
         self.player_life_bar.config_life(self.player.player_max_life, self.player.player_max_life)
 
-        # === Nueva instancia de la imagen del jugador en la esquina inferior izquierda ===
-        self.icon_image = py.image.load(Enum.resourcePath.SHIP)
-        self.icon_image = py.transform.scale(self.icon_image, (40, 40))
-        self.icon_rect = self.icon_image.get_rect()
-        # Posicionar en el borde inferior izquierdo con un pequeño margen
-        self.icon_rect.topleft = (20, self.screen.height - self.icon_rect.height - 10)
 
-        # === Texto de puntaje para futuras implementaciones ===
-        self.font_1 = py.font.SysFont("Arial", 30)
+        # === Nueva instancia del Power Up activo de daño ===
+        self.powerUp_icon = Enum.Image.PowerUpDamage_1
+        self.powerUp_icon_rect = self.powerUp_icon.get_rect()
+        self.powerUp_icon_rect.topleft = (0, self.player_icon_rect.y - 60)
+
+        # === Texto de puntaje ===
+        # La fuente decorativa (Debrosee) no incluye glifos de números, por lo que
+        # se usa una fuente de sistema con soporte numérico completo para el score.
+        self.font_1 = py.font.SysFont("arial", 30, bold=True)
         self.surface_text_score = self.font_1.render(f"SCORE: {self.level.score}", True, Enum.colorsMap.WHITE)
         self.rect_text = self.surface_text_score.get_rect()
         self.rect_text.center = (self.screen.width//2, 20)
 
-    def draw(self, screen_surface: py.Surface) -> None:
-        """Dibuja el ícono del jugador y la barra de vida en la esquina inferior izquierda."""
+        # Fondo oscuro detrás del score para que el texto blanco sea legible
+        # sobre el fondo brillante (font.jpg) que se desplaza en cada frame.
+        self.score_bg = py.Rect(0, 0, 0, 0)
 
-        screen_surface.blit(self.icon_image, self.icon_rect)
+    def draw(self, screen_surface: py.Surface) -> None:
+        """Dibuja el ícono del jugador, la barra de vida y el puntaje actualizado."""
+
+        # Dibujar Icono de Jugador
+        screen_surface.blit(self.player_icon, self.player_icon_rect)
+
+        # Dibujar Barra de vida
         self.player_life_bar.config_life(self.player.player_life, self.player.player_max_life)
         self.player_life_bar.draw_life_bar()
+
+        # Dibujar power Up
+        if PlayerService.actual_ammo != 1:
+            screen_surface.blit(self.powerUp_icon, self.powerUp_icon_rect)
+
+        # Re-renderizar el puntaje con el valor actual y re-centrar el rect
         self.surface_text_score = self.font_1.render(f"SCORE: {self.level.score}", True, Enum.colorsMap.WHITE)
-        self.screen.surface.blit(self.surface_text_score, self.rect_text)
+        self.rect_text = self.surface_text_score.get_rect()
+        self.rect_text.center = (self.screen.width // 2, 20)
+
+        # Panel de fondo para asegurar legibilidad del texto
+        padding_x, padding_y = 12, 6
+        self.score_bg = self.rect_text.inflate(padding_x * 2, padding_y * 2)
+        py.draw.rect(screen_surface, (0, 0, 0), self.score_bg, border_radius=8)  # fondo negro
+        # Contorno del texto para contrastar
+        py.draw.rect(screen_surface, Enum.colorsMap.WHITE, self.score_bg, width=2, border_radius=8)
+        screen_surface.blit(self.surface_text_score, self.rect_text)

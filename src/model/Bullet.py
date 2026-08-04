@@ -6,8 +6,8 @@ from src.model.Enum import Enum
 class Bullet(py.sprite.Sprite):
     def __init__(self, pos_x, pos_y, data, bullet_speed=5, damage=1) -> None:
         super().__init__()
-        self.image = py.image.load(self.get_character(data))
-        self.image = py.transform.scale(self.image, (40, 40))
+        self.image = Enum.Image.Bullet_1 if data == 1 else Enum.Image.Bullet_2 # Cargar la bala 1 o la bala 2
+
         self.damage = damage
         self.rect = self.image.get_rect(center=(pos_x, pos_y))
         self.bullet_speed = bullet_speed
@@ -37,6 +37,8 @@ class Bullet(py.sprite.Sprite):
     def move_up(self) -> None:
         self.rect.y -= self.bullet_speed
 
+
+    # Desutilizada
     @staticmethod
     def get_character(data) -> None | Literal['src/resources/bullet_1.PNG'] | Literal['src/resources/bullet_2.PNG']:
         if data == 1:

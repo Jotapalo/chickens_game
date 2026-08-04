@@ -1,10 +1,10 @@
 import sys
 import pygame as py
 from src.levels.Level_1 import Level_1
-from src.services.ShootService import ShootService
-from src.services.PlayerMovementService import PlayerMovementService
+from src.services.PlayerService import PlayerService
 from src.services.EnemyService import EnemyService
 from src.config.PowerUpConfig import PowerUpConfig
+from src.config.HealthConfig import HealthConfig
 from src.model.Player import Player
 from src.model.Screen import Screen
 from src.model.MessageOverlay import MessageOverlay
@@ -56,15 +56,11 @@ GameInstance.mainScreen = screen
 GameInstance.entities["player"] = player
 
 # Servicios
-ShootSVC = ShootService(GameInstance)
+PlayerSVC = PlayerService(GameInstance)
 EnemySVC = EnemyService(GameInstance)
 
-GameInstance.services["shoot_service"] = ShootSVC
+GameInstance.services["player_service"] = PlayerSVC
 GameInstance.services["enemy_service"] = EnemySVC
-
-
-# Servicio de movimiento del jugador
-player.suscribeMovementService(PlayerMovementService(player))
 
 running = True
 EventGenerator = EventGen(GameInstance)
@@ -75,6 +71,11 @@ EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
                                            damage=10,
                                            probability = 80)
 EventGenerator.SetConfigPowerUp(5)
+EventGenerator.health_CFG = HealthConfig(fall_speed=2,
+                                         rangex=[0, 900],
+                                         rangey=20,
+                                         heal_amount=20,
+                                         probability=30)
 
 message_overlay = MessageOverlay(GameInstance)
 GameInstance.layout["message_overlay"] = message_overlay
@@ -96,6 +97,10 @@ while running:
             exit()
         elif evento.type == py.KEYDOWN and evento.key == py.K_ESCAPE:
             screen.pause = not screen.pause  # Alternar pausa
+            if screen.pause:
+                EventGenerator.pause_power_timers()   # Pausar contadores de PowerUp
+            else:
+                EventGenerator.resume_power_timers()  # Reanudar contadores de PowerUp
 
     if GameInstance.win:
         screen.win_protocol()
@@ -115,21 +120,22 @@ while running:
         level_loaded.init_level()
     
 
-    ShootSVC.increment_counter()
+    PlayerSVC.increment_counter()
 
     # Dibujar fondo
     screen.draw_background()
 
 
     # Servicios
-    player.PlayerMovementSVC.player_movement(screen=screen.surface)
+    PlayerSVC.player_movement()
     EnemySVC.move_enemies()
     level_loaded.shoot_manager()
     EventGenerator.checker()
 
     # Detectar
-    EnemySVC.check_collisions(ShootSVC.bulletsGroup, level_loaded)
-    player.check_collisions(EnemySVC.enemiesCollection)
+    EnemySVC.check_collisions(PlayerSVC.bulletsGroup, level_loaded)
+    if player.can_damaged:
+        player.check_collisions(EnemySVC.enemiesCollection)
     
     if EnemySVC.any_enemy_at_bottom():
         screen.game_over = True
@@ -137,7 +143,7 @@ while running:
 
     # Zona de dibujado
     player.draw_player()
-    ShootSVC.draw_bullets(screen=screen.surface)
+    PlayerSVC.draw_bullets(screen=screen.surface)
     EnemySVC.draw_enemies()
     message_overlay.draw(screen.surface)
     mainOverlay.draw(screen.surface)
@@ -145,3 +151,4 @@ while running:
     # Actualizar pantalla y tasa de fotogramas
     py.display.flip()
     py.time.Clock().tick(FPS)
+

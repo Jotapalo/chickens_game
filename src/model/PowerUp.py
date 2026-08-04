@@ -4,7 +4,7 @@ from src.model.Enum import Enum
 from src.model.TimerThread import TimerThread
 from random import randint
 from typing import TYPE_CHECKING
-from src.services.ShootService import ShootService
+from src.services.PlayerService import PlayerService
 
 if TYPE_CHECKING:
     from src.config.PowerUpConfig import PowerUpConfig
@@ -13,9 +13,8 @@ class PowerUp(py.sprite.Sprite):
     def __init__(self, powerUp_CFG: PowerUpConfig, screen=None) -> None:
         super().__init__()
         self.screen = screen
-        self.shoot_service: ShootService | None = None
-        self.image = py.image.load(Enum.resourcePath.POWER_UP)
-        self.image = py.transform.scale(self.image, (80, 80))
+        self.player_service: PlayerService | None = None
+        self.image = Enum.Image.PowerUpDamage_1
 
         self.powerUp_CFG = powerUp_CFG
         rangex = randint(*self.powerUp_CFG.x) if isinstance(self.powerUp_CFG.x, list) else self.powerUp_CFG.x
@@ -88,9 +87,9 @@ class PowerUp(py.sprite.Sprite):
     def power_up_timeout(self) -> None:
         PowerUp.power_up_active = False
         print("El power-up ha expirado.")
-        if self.shoot_service:
-            ShootService.actual_ammo = 1
-            ShootService.bullet_damage = 1
+        if self.player_service:
+            PlayerService.actual_ammo = 1
+            PlayerService.bullet_damage = 1
 
     def activate_power_up(self):
         PowerUp.power_up_active = True
@@ -98,7 +97,7 @@ class PowerUp(py.sprite.Sprite):
         # Iniciar el temporizador para el power-up
         timer = TimerThread(duration=self.powerUp_CFG.duration, callback=self.power_up_timeout, daemon=True)
         timer.start()
-        if self.shoot_service:
-            ShootService.actual_ammo = 2
-            ShootService.bullet_damage = self.powerUp_CFG.damage
+        if self.player_service:
+            PlayerService.actual_ammo = 2
+            PlayerService.bullet_damage = self.powerUp_CFG.damage
         return timer  # Retornar el temporizador para controlarlo si es necesario

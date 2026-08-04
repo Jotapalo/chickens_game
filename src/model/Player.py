@@ -1,21 +1,19 @@
 from __future__ import annotations
+import time
 import pygame as py
 from src.model.Enum import Enum
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from src.services.PlayerMovementService import PlayerMovementService
-
+from src.model.TimerThread import TimerThread
+import threading
 class Player(py.sprite.Sprite):
     def __init__(self, screen= None) -> None:
         super().__init__()
         self.screen = screen
-        self.image = py.image.load(Enum.resourcePath.SHIP)
-        self.image = py.transform.scale(self.image, (70, 70))
+        self.image = Enum.Image.Player
         self.rect = self.image.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2))
-        self.PlayerMovementSVC: PlayerMovementService
         self.player_max_life = 100
         self.player_life = self.player_max_life
+        self.can_damaged = True
+        self.player_draw = True
 
     # Propiedades para mantener compatibilidad con código que usa .x y .y
     @property
@@ -39,9 +37,6 @@ class Player(py.sprite.Sprite):
     def player_react(self):
         return self.rect
 
-    def suscribeMovementService(self, PlayerMovementService: PlayerMovementService) -> None:
-        self.PlayerMovementSVC = PlayerMovementService
-
     def check_collisions(self, enemies) -> list:
         """Detecta colisiones entre el jugador y los enemigos.
 
@@ -60,13 +55,31 @@ class Player(py.sprite.Sprite):
         for enemy in enemies:
             if py.sprite.collide_rect(self, enemy):
                 collided_enemies.append(enemy)
-                if enemy.can_damage:
+                if self.can_damaged:
                     self.player_life -= enemy.damage
                     enemy.can_damage = False
+
+                self.can_damaged = False
+
+                # Sistema de invulnerabilidad 
+                threading.Thread(target=self.can_damaged_protocol, daemon=True).start()
+                return
         return collided_enemies
+
+    def can_damaged_protocol(self):
+        lapse = 2
+        divisions = 8
+
+        for i in range(divisions):
+            self.player_draw = not self.player_draw
+            time.sleep(lapse/divisions)
+            
+        self.player_draw = True
+        self.can_damaged = True
 
     def draw_player(self, rectangle:py.Rect | None = None) -> None: 
         if rectangle == None:
             rectangle = self.rect
         # Actualizar y dibujar al jugador
-        self.screen.blit(self.image, rectangle)
+        if self.player_draw:
+            self.screen.blit(self.image, rectangle)
