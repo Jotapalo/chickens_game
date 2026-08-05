@@ -7,20 +7,20 @@ from typing import TYPE_CHECKING
 from src.services.PlayerService import PlayerService
 
 if TYPE_CHECKING:
-    from src.model.Config import PowerUpConfig
+    from src.model.Config import PowerUpMinigunConfig
 
-class PowerUp(py.sprite.Sprite):
+class PowerUp_minigun(py.sprite.Sprite):
     power_up_active = False
     # Timer compartido a nivel de clase: siempre apunta al último temporizador
-    # de daño activo. Así cualquier instancia puede extender/referenciar
+    # de minigun activo. Así cualquier instancia puede extender/referenciar
     # el temporizador actual sin depender de un dict externo.
     timer: TimerThread | None = None
 
-    def __init__(self, powerUp_CFG: PowerUpConfig, screen=None) -> None:
+    def __init__(self, powerUp_CFG: PowerUpMinigunConfig, screen=None) -> None:
         super().__init__()
         self.screen = screen
         self.player_service: PlayerService | None = None
-        self.image = Enum.Image.PowerUpDamage_1
+        self.image = Enum.Image.PowerUp_minigun
 
         self.powerUp_CFG = powerUp_CFG
         rangex = randint(*self.powerUp_CFG.x) if isinstance(self.powerUp_CFG.x, list) else self.powerUp_CFG.x
@@ -54,7 +54,7 @@ class PowerUp(py.sprite.Sprite):
 
     def draw_power_up(self, screen=None) -> None:
         """Dibuja el PowerUp en la pantalla.
-        
+
         Args:
             screen: Superficie de pygame donde dibujar. Si no se proporciona,
                     usa la screen almacenada en el constructor.
@@ -66,10 +66,10 @@ class PowerUp(py.sprite.Sprite):
 
     def check_player_collision(self, player) -> bool:
         """Comprueba si el PowerUp colisiona con el jugador.
-        
+
         Args:
             player: Objeto Player cuyo rect usamos para colisión
-            
+
         Returns:
             bool: True si hay colisión, False en caso contrario.
         """
@@ -77,12 +77,12 @@ class PowerUp(py.sprite.Sprite):
 
     def update_and_draw(self, screen, player) -> bool:
         """Mueve el PowerUp hacia abajo, lo dibuja, y comprueba colisión con el jugador.
-        
+
         Args:
             screen: Superficie de pygame donde dibujar.
             player: Objeto Player para detectar colisión.
             speed: Velocidad de movimiento hacia abajo.
-            
+
         Returns:
             bool: True si el PowerUp colisionó con el jugador, False en caso contrario.
         """
@@ -91,31 +91,29 @@ class PowerUp(py.sprite.Sprite):
         return self.check_player_collision(player)
 
     def power_up_timeout(self) -> None:
-        PowerUp.power_up_active = False
-        PowerUp.timer = None  # El timer terminó, lo limpiamos
-        print("El power-up ha expirado.")
+        PowerUp_minigun.power_up_active = False
+        PowerUp_minigun.timer = None  # El timer terminó, lo limpiamos
+        print("El power-up minigun ha expirado.")
         if self.player_service:
-            PlayerService.actual_ammo = 1
-            PlayerService.bullet_damage = 1
+            self.player_service.cadence = 20
 
     def activate_power_up(self):
-        PowerUp.power_up_active = True
-        print("Power-up activado.")
+        PowerUp_minigun.power_up_active = True
+        print("Power-up minigun activado.")
         if self.player_service:
-            PlayerService.actual_ammo = 2
-            PlayerService.bullet_damage = self.powerUp_CFG.damage
+            self.player_service.cadence = 7
 
         # Siempre referenciamos el último timer de la clase.
         # Si sigue activo, lo extendemos; si no, creamos uno nuevo.
-        if PowerUp.timer is not None:
-            PowerUp.timer.extend(self.powerUp_CFG.duration)
-            return PowerUp.timer
+        if PowerUp_minigun.timer is not None:
+            PowerUp_minigun.timer.extend(self.powerUp_CFG.duration)
+            return PowerUp_minigun.timer
 
         # No hay timer activo: crear e iniciar uno nuevo y guardarlo en la clase
-        PowerUp.timer = TimerThread(
+        PowerUp_minigun.timer = TimerThread(
             duration=self.powerUp_CFG.duration,
             callback=self.power_up_timeout,
             daemon=True,
         )
-        PowerUp.timer.start()
-        return PowerUp.timer
+        PowerUp_minigun.timer.start()
+        return PowerUp_minigun.timer

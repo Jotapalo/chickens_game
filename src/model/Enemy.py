@@ -1,5 +1,5 @@
 import pygame as py
-from src.config import EnemyConfig
+from src.model.Config import EnemyConfig
 from src.model.Enum import Enum
 from src.model.LifeBar import LifeBar
 

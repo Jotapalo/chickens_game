@@ -5,7 +5,7 @@ from random import randint
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.config.HealthConfig import HealthConfig
+    from src.model.Config import HealthConfig
 
 class Health(py.sprite.Sprite):
     def __init__(self, health_CFG: HealthConfig, screen=None) -> None:

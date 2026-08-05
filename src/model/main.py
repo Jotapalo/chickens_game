@@ -3,8 +3,7 @@ import pygame as py
 from src.levels.Level_1 import Level_1
 from src.services.PlayerService import PlayerService
 from src.services.EnemyService import EnemyService
-from src.config.PowerUpConfig import PowerUpConfig
-from src.config.HealthConfig import HealthConfig
+from src.model.Config import PowerUpConfig, HealthConfig, PowerUpMinigunConfig
 from src.model.Player import Player
 from src.model.Screen import Screen
 from src.model.MessageOverlay import MessageOverlay
@@ -64,18 +63,25 @@ GameInstance.services["enemy_service"] = EnemySVC
 
 running = True
 EventGenerator = EventGen(GameInstance)
+EventGenerator.SetConfigPowerUp(5)
 EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
                                            fall_speed=2,
                                            rangex=[0, 900],
                                            rangey=20,
                                            damage=10,
-                                           probability = 80)
-EventGenerator.SetConfigPowerUp(5)
+                                           probability = 100)
+EventGenerator.powerUpMinigun_CFG = PowerUpMinigunConfig(duration=5,
+                                           fall_speed=2,
+                                           rangex=[0, 900],
+                                           rangey=20,
+                                           fire_speed=7,
+                                           probability = 100)
 EventGenerator.health_CFG = HealthConfig(fall_speed=2,
                                          rangex=[0, 900],
                                          rangey=20,
                                          heal_amount=20,
-                                         probability=30)
+                                         probability=1)
+
 
 message_overlay = MessageOverlay(GameInstance)
 GameInstance.layout["message_overlay"] = message_overlay

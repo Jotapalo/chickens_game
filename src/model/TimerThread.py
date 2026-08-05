@@ -33,3 +33,11 @@ class TimerThread(threading.Thread):
 
     def stop(self) -> None:
         self._stop_event.set()
+
+    def extend(self, seconds: float) -> None:
+        """Extiende el tiempo restante del temporizador.
+
+        Si el power-up ya está activo y se recoge otro del mismo tipo,
+        se suman los segundos al tiempo que quedaba en vez de reiniciarlo.
+        """
+        self.remaining_time += seconds

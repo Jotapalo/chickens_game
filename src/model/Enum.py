@@ -10,6 +10,7 @@ class ResourcePath:
     BULLET_2 = "src/resources/bullet_2.PNG"
     FONT = "src/resources/font.JPG"
     POWER_UP = "src/resources/power_up.PNG"
+    POWER_UP_MINIGUN = "src/resources/powerUp_minigun.PNG"
     SHIP = "src/resources/ship.PNG"
     ENEMY = "src/resources/enemy.PNG"
     HEALTH = "src/resources/health.PNG"
@@ -30,7 +31,10 @@ class Img:
     Enemy = py.image.load(ResourcePath.ENEMY)
 
     PowerUpDamage_1 = py.image.load(ResourcePath.POWER_UP)
-    PowerUpDamage_1 = py.transform.scale(PowerUpDamage_1, (80, 80))
+    PowerUpDamage_1 = py.transform.scale(PowerUpDamage_1, (40, 40))
+
+    PowerUp_minigun = py.image.load(ResourcePath.POWER_UP_MINIGUN)
+    PowerUp_minigun = py.transform.scale(PowerUp_minigun, (40, 40))
 
 class Enum:
     def __init__(self):
