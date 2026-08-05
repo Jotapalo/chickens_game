@@ -1,7 +1,7 @@
 import threading
 import time
 from typing import TYPE_CHECKING
-from src.config.EnemyConfig import EnemyConfig
+from src.model.Config import EnemyConfig
 from src.model.Game import Game
 from src.levels.Level import Level
 

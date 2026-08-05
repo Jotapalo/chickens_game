@@ -13,9 +13,9 @@ class PlayerService:
         self.__cooldown_counter = 0
         self.bulletsGroup = py.sprite.Group()
         self.bullet_speed = game_context.parameters.get("bullet_speed")
+        self.cadence = 20 # Valor por defecto debe ser modificable a futuro
         self.player = game_context.entities.get("player")
         self.__player_speed = 10
-        
     bullet_damage = 1 # valor por defecto
     actual_ammo = 1 # valor por defecto
 
@@ -47,8 +47,8 @@ class PlayerService:
                             min(self.player.y, screen.get_height() - self.player.player_react.width // 2))
 
     def shoot_checker (self) -> None:
-        # Disparo de balas cada 20 frames
-        if self.__cooldown_counter >= 20:
+        # Disparo de balas cada self.cadence frames
+        if self.__cooldown_counter >= self.cadence:
             self.__cooldown_counter = 0
             new_bullet = Bullet(self.player.x, self.player.y,
                                 data=PlayerService.actual_ammo, 

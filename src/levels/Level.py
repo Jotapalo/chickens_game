@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from src.services.PlayerService import PlayerService
     from model import Screen
     from model.MessageOverlay import MessageOverlay
-    from src.config.EnemyConfig import EnemyConfig
+from src.model.Config import EnemyConfig
 
 class Level:
     def __init__(self, game_context: Game):

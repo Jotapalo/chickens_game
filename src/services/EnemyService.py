@@ -4,7 +4,7 @@ from random import randint
 import pygame as py
 from typing import TYPE_CHECKING
 
-from src.config.EnemyConfig import EnemyConfig
+from src.model.Config import EnemyConfig
 from src.model.Enemy import Enemy
 from pygame import Surface
 
