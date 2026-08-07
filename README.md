@@ -22,3 +22,9 @@ Desde la raiz del proyecto ejecutar
 ```bash
 py -m src.view.menu-view
 ```
+
+## Pruebas unitarias
+Pruebas unitarias disponibles: test de spritesheets
+```bash
+python .\test\test_frame_boom.py
+```

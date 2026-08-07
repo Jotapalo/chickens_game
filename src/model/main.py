@@ -63,24 +63,24 @@ GameInstance.services["enemy_service"] = EnemySVC
 
 running = True
 EventGenerator = EventGen(GameInstance)
-EventGenerator.SetConfigPowerUp(5)
+EventGenerator.SetDelay(5)
 EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
-                                           fall_speed=2,
+                                           fall_speed=1.5,
                                            rangex=[0, 900],
-                                           rangey=20,
+                                           rangey=0,
                                            damage=10,
                                            probability = 100)
 EventGenerator.powerUpMinigun_CFG = PowerUpMinigunConfig(duration=5,
-                                           fall_speed=2,
+                                           fall_speed=1.5,
                                            rangex=[0, 900],
-                                           rangey=20,
+                                           rangey=0,
                                            fire_speed=7,
                                            probability = 100)
-EventGenerator.health_CFG = HealthConfig(fall_speed=2,
+EventGenerator.health_CFG = HealthConfig(fall_speed=1.5,
                                          rangex=[0, 900],
-                                         rangey=20,
+                                         rangey=0,
                                          heal_amount=20,
-                                         probability=1)
+                                         probability=20)
 
 
 message_overlay = MessageOverlay(GameInstance)
@@ -91,7 +91,6 @@ GameInstance.level = level_loaded
 
 mainOverlay = MainOverlay(GameInstance)
 GameInstance.layout["main_overlay"] = mainOverlay
-
 
 # Game loop
 while running:
@@ -108,19 +107,22 @@ while running:
             else:
                 EventGenerator.resume_power_timers()  # Reanudar contadores de PowerUp
 
+    # Handler en caso de victoria
     if GameInstance.win:
         screen.win_protocol()
         continue
 
+    # Handler en caso de derrota
     if screen.game_over or player.player_life <= 0:
         screen.game_over_protocol()
         continue
 
+    # Handler en caso de pausa
     if screen.pause:
         screen.pause_protocol()
         continue  # Saltar el resto de actualizaciones del juego
 
-
+    # Cargador de nivel
     if level_loaded.lock == False:
         level_loaded.lock = True
         level_loaded.init_level()
@@ -132,17 +134,34 @@ while running:
     screen.draw_background()
 
 
-    # Servicios
+    # Servicios de movimiento
     PlayerSVC.player_movement()
     EnemySVC.move_enemies()
+
+    # Servicios de disparo
     level_loaded.shoot_manager()
+
+    # Servicio de items empaquetado
     EventGenerator.checker()
 
-    # Detectar
+    # Detectar colisiones entre enemigos y balas
     EnemySVC.check_collisions(PlayerSVC.bulletsGroup, level_loaded)
+
+    # Animacion de enemigos eliminados
+    for chicken in EnemySVC.killed_enemies:
+        chicken.draw()
+
+    # Dibujar y limpiar las explosiones (boom) activas
+    for boom in EnemySVC.booms[:]:
+        boom.draw()
+        if boom.finished:
+            EnemySVC.booms.remove(boom)
+
+    # Si el jugador puede ser dañado, verifica sus colisiones
     if player.can_damaged:
         player.check_collisions(EnemySVC.enemiesCollection)
-    
+
+    # Si los enemigos llegan al final de la pantalla se acaba
     if EnemySVC.any_enemy_at_bottom():
         screen.game_over = True
         continue

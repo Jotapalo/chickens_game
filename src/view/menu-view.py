@@ -24,12 +24,14 @@ class MenuView(tk.Tk):
         self.frame_main.pack(expand=True, anchor="center", fill="both")
 
         # Canvas que vive en frame principal
-        image = Image.open(Enum.resourcePath.FONT)
+        image = Image.open(Enum.resourcePath.FONT_1)
         photo = ImageTk.PhotoImage(image)
         self.canvas = Canvas(self.frame_main, width=735, height=410)
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, anchor=tk.NW, image=photo)
         self.canvas.image = photo
+
+
 
         # Create a style object
         style_button = ttk.Style(self.frame_main)
@@ -45,7 +47,7 @@ class MenuView(tk.Tk):
         style_label.theme_use("clam")
         style_label.configure("Custom.TLabel",
                     font=("Cascadia Code", 12),
-                    foreground="blue",
+                    foreground="white",
                     background="black"
                     )
 
@@ -55,6 +57,12 @@ class MenuView(tk.Tk):
     def load_main_page(self):
         for child in self.canvas.winfo_children():
             child.destroy()
+
+        img = Image.open(Enum.resourcePath.ENEMY)
+        img = img.resize((200, 200), Image.LANCZOS)  # Redimensionar manteniendo calidad
+        img = ImageTk.PhotoImage(img)
+        self.canvas.image_enemy = img
+        self.canvas.create_image(100, 300, image=img)
         
         # Configuracion canvas
         self.canvas.grid_columnconfigure(0, weight=1)
@@ -89,6 +97,7 @@ class MenuView(tk.Tk):
 
     def load_settings_page(self):
         for child in self.canvas.winfo_children():
+            print(child)
             child.destroy()
 
         self.canvas.grid_rowconfigure((0,1), weight=0)
@@ -96,18 +105,18 @@ class MenuView(tk.Tk):
         self.canvas.grid_columnconfigure((0,1), weight=1)
         self.canvas.grid_rowconfigure((0,2), weight=1)
 
-        ttk.Label(self.canvas, text="FPS", style="Custom.TLabel").grid(column=0, row=0)
-        ttk.Label(self.canvas, text="Bullet speed", style="Custom.TLabel").grid(column=0, row=1)
-        ttk.Label(self.canvas, text="Debug", style="Custom.TLabel").grid(column=0, row=2)
+        ttk.Label(self.canvas, text="FPS", style="Custom.TLabel").grid(column=0, row=0, sticky="e", padx=30)
+        ttk.Label(self.canvas, text="Bullet speed", style="Custom.TLabel").grid(column=0, row=1, sticky="e", padx=30)
+        ttk.Label(self.canvas, text="Debug", style="Custom.TLabel").grid(column=0, row=2, sticky="e", padx=30)
 
         self.entry_fps = tk.Entry(self.canvas)
-        self.entry_fps.grid(column=1, row=0)
+        self.entry_fps.grid(column=1, row=0, sticky="w")
         self.entry_fps.insert(0, self.param_fps)
         self.entry_bullet_speed = tk.Entry(self.canvas)
-        self.entry_bullet_speed.grid(column=1, row=1)
+        self.entry_bullet_speed.grid(column=1, row=1, sticky="w")
         self.entry_bullet_speed.insert(0, self.param_bullet_speed)
         self.entry_debug = tk.Entry(self.canvas)
-        self.entry_debug.grid(column=1, row=2)
+        self.entry_debug.grid(column=1, row=2, sticky="w")
         self.entry_debug.insert(0, self.param_debug)
 
 

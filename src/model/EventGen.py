@@ -3,7 +3,8 @@ import time
 from src.model.PowerUp import PowerUp
 from src.model.PowerUp_minigun import PowerUp_minigun
 from src.model.Health import Health
-from src.model.Config import PowerUpConfig, HealthConfig, PowerUpMinigunConfig
+from src.model.Config import PowerUpConfig, HealthConfig, PowerUpMinigunConfig, MeteorConfig
+from src.model.Meteor import Meteor
 from random import randint
 from typing import TYPE_CHECKING
 
@@ -16,6 +17,7 @@ class EventGen:
     def __init__(self, game_context: Game) -> None:
         self.powerUps: list[PowerUp | PowerUp_minigun] = list()
         self.healths: list[Health] = list()
+        self.meteors: list[Meteor] = list()
         self.screen = game_context.mainScreen
         self.player = game_context.entities.get("player")
         self.player_service = game_context.services.get("player_service")
@@ -31,12 +33,14 @@ class EventGen:
         self.powerUp_timer = 0.0
         self.powerUpMinigun_timer = 0.0
         self.health_timer = 0.0
+        self.meteor_timer = 0.0
+        self.planet_timer = 0.0
 
         # Marca de tiempo del último frame para calcular el delta real
         self._last_time = time.perf_counter()
 
 
-    def SetConfigPowerUp(self, delay: int):
+    def SetDelay(self, delay: int):
         self.powerUp_delay = delay
 
     def pause_power_timers(self) -> None:
@@ -85,6 +89,21 @@ class EventGen:
                 self.healths.append(new_health)
                 print("Health Spawned")
 
+        # Generacion de meteoritos
+        if self.meteor_timer >= 12:
+            self.meteor_timer = 0.0
+            meteor = Meteor(self.screen)
+            self.meteors.append(meteor)
+            print("Meteor Spawned")
+
+
+        if self.planet_timer >= 10:
+            self.planet_timer = 0.0
+            self.screen.summon_planet(["saturn", "planet_1", "planet_2"][randint(0,2)],
+                                        randint(50, 100) if randint(0, 1) == 1 else randint(800, 850),
+                                        -300)
+            print("Planet spawned")
+
     def checker(self):
         # Calcular el delta de tiempo real transcurrido desde el último frame
         now = time.perf_counter()
@@ -95,6 +114,8 @@ class EventGen:
         self.powerUp_timer += delta
         self.powerUpMinigun_timer += delta
         self.health_timer += delta
+        self.meteor_timer += delta
+        self.planet_timer += delta
 
         # Intentar spawneo según probabilidad cada powerUp_delay segundos
         self._try_spawn()
@@ -103,14 +124,31 @@ class EventGen:
         # Cada clase de power-up gestiona su propio timer de clase (el último
         # creado), por lo que al recolectar otro del mismo tipo mientras el
         # timer sigue activo, se EXTENDERÁ su duración automáticamente.
-        for power_up in self.powerUps:
+        # Se itera sobre una copia para poder eliminar de la lista con seguridad.
+        for power_up in self.powerUps[:]:
             if power_up.update_and_draw(screen=self.screen.surface, player=self.player):
                 power_up.activate_power_up()
+                power_up.kill()
+                self.powerUps.remove(power_up)
+            elif power_up.rect.y >= 600:  # Salió de pantalla
+                power_up.kill()
                 self.powerUps.remove(power_up)
 
 
         # Actualizar y dibujar los healths activos en pantalla
-        for health in self.healths:
+        for health in self.healths[:]:
             if health.update_and_draw(screen=self.screen.surface, player=self.player):
                 health.heal_player(self.player)
+                health.kill()
                 self.healths.remove(health)
+            elif health.rect.y >= 600:  # Salió de pantalla
+                health.kill()
+                self.healths.remove(health)
+
+        # Actualizar y mover los meteoritos. draw_and_move devuelve True cuando
+        # el meteorito salió por completo de la pantalla; entonces lo eliminamos
+        # de la lista para liberar la referencia y que el GC lo borre.
+        for meteor in self.meteors[:]:
+            salio_de_pantalla = meteor.draw_and_move(self.screen.surface)
+            if salio_de_pantalla:
+                self.meteors.remove(meteor)

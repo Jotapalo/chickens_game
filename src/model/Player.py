@@ -57,9 +57,7 @@ class Player(py.sprite.Sprite):
                 collided_enemies.append(enemy)
                 if self.can_damaged:
                     self.player_life -= enemy.damage
-                    enemy.can_damage = False
-
-                self.can_damaged = False
+                    self.can_damaged = False
 
                 # Sistema de invulnerabilidad 
                 threading.Thread(target=self.can_damaged_protocol, daemon=True).start()

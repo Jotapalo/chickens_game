@@ -4,6 +4,8 @@ from random import randint
 import pygame as py
 from typing import TYPE_CHECKING
 
+from src.model.RoastedChicken import RoastedChicken
+from src.model.Boom import Boom
 from src.model.Config import EnemyConfig
 from src.model.Enemy import Enemy
 from pygame import Surface
@@ -16,6 +18,8 @@ class EnemyService:
         self.screen: Surface = game_context.mainScreen.surface
         self._enemiesGroup = py.sprite.Group()
         self._lock = threading.Lock()
+        self.killed_enemies = []
+        self.booms = []
 
     @property
     def enemiesCollection(self):
@@ -96,14 +100,19 @@ class EnemyService:
             hits = py.sprite.groupcollide(self._enemiesGroup, bullets_group, False, True)
             for enemy, bullets in hits.items():
                 for bullet in bullets: # Colision bala-enemigo detectada
+                    enemy: Enemy
                     enemy.life -= bullet.damage
                     enemy.lifeBar.config_life(enemy.life, enemy.max_life)
                     collisions += 1
                     level.score += bullet.damage
                     
                 if enemy.life <= 0:
+                    # Crear la explosión (boom) en la posición del enemigo antes de eliminarlo
+                    self.booms.append(Boom(self.screen, enemy.x, enemy.y, isBoss= enemy.xp >= 100 ))
                     enemy.kill()
-                    level.score += 10  # VALOR TEMPORAL, modificar con enemy.xp que se agregara proximamente
+                    level.score += enemy.xp
+                    self.killed_enemies.append(RoastedChicken(enemy=enemy))
+
         return collisions
 
     def gen_coordinates_x(self, num_enemies: int, screen_axis_size: int, range_coefficient: tuple[int, int] = 0) -> list[int]:
@@ -139,3 +148,4 @@ generar un patron de aleatoriedad entre posiciones de enemigos.
 
 
         return final_coo
+
