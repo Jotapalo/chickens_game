@@ -24,7 +24,7 @@ class Level_1(Level):
         self.enemyInfo = [
             (3, EnemyConfig(life=5)),
             (5, EnemyConfig(life=10)),
-            (1, EnemyConfig(life=500, size=(200,200)))
+            (1, EnemyConfig(life=500, size=(200,200), xp=100))
         ]
         
         self.waves_delay = 2
@@ -36,7 +36,6 @@ class Level_1(Level):
 
     def run(self):
         interview_msg = ["Wave 1", "Wave 2", "Boss"]
-        msg_id = 0
 
         for iterator in range(len(self.enemyInfo)):
             self.message_overlay.show(interview_msg[iterator], duration=2)
