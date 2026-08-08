@@ -10,6 +10,7 @@ from src.model.MessageOverlay import MessageOverlay
 from src.model.Game import Game
 from src.model.MainOverlay import MainOverlay
 from src.model.EventGen import EventGen
+from src.services.SoundService import SoundService
 
 
 GameInstance = Game()
@@ -60,6 +61,7 @@ EnemySVC = EnemyService(GameInstance)
 
 GameInstance.services["player_service"] = PlayerSVC
 GameInstance.services["enemy_service"] = EnemySVC
+GameInstance.services["sound_service"] = SoundService
 
 running = True
 EventGenerator = EventGen(GameInstance)
@@ -92,6 +94,7 @@ GameInstance.level = level_loaded
 mainOverlay = MainOverlay(GameInstance)
 GameInstance.layout["main_overlay"] = mainOverlay
 
+SoundService.play_music_background()
 # Game loop
 while running:
     # Eventos
@@ -126,9 +129,6 @@ while running:
     if level_loaded.lock == False:
         level_loaded.lock = True
         level_loaded.init_level()
-    
-
-    PlayerSVC.increment_counter()
 
     # Dibujar fondo
     screen.draw_background()
