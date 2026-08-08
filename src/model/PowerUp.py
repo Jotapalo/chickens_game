@@ -2,6 +2,7 @@ from __future__ import annotations
 import pygame as py
 from src.model.Enum import Enum
 from src.model.TimerThread import TimerThread
+from src.services.SoundService import SoundService
 from random import randint
 from typing import TYPE_CHECKING
 from src.services.PlayerService import PlayerService
@@ -73,7 +74,10 @@ class PowerUp(py.sprite.Sprite):
         Returns:
             bool: True si hay colisión, False en caso contrario.
         """
-        return self.rect.colliderect(player.rect)
+        if self.rect.colliderect(player.rect):
+            SoundService.play_power_up_sound()
+            return True
+        return False
 
     def update_and_draw(self, screen, player) -> bool:
         """Mueve el PowerUp hacia abajo, lo dibuja, y comprueba colisión con el jugador.

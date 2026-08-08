@@ -5,24 +5,36 @@ class ColorsMap:
     WHITE = (255, 255, 255)
     GREEN = (0, 255, 0)
 
-class ResourcePath: 
-    BULLET_1 = "src/resources/bullet_1.PNG"
-    BULLET_2 = "src/resources/bullet_2.PNG"
-    FONT_1 = "src/resources/space_font_1.jpg"
-    FONT_2 = "src/resources/space_font_2.png"
-    FONT_3 = "src/resources/space_font_3.jpg"
-    POWER_UP = "src/resources/power_up.PNG"
-    POWER_UP_MINIGUN = "src/resources/powerUp_minigun.PNG"
-    SHIP = "src/resources/ship.PNG"
-    ENEMY = "src/resources/enemy.PNG"
-    HEALTH = "src/resources/health.PNG"
-    DEFAULT_FONT = "src/fonts/VeniteAdoremus-rgRBA.ttf"
-    ROASTED_CHICKEN = "src/resources/roasted_chicken.PNG"
-    METEOR = "src/resources/meteor.PNG"
-    SATURN = "src/resources/saturno.png"
-    PLANET_1 = "src/resources/planet_1.png"
-    PLANET_2 = "src/resources/planet_2.png"
-    BOOM = "src/resources/boom.png"
+class ResourcePath:
+    BASE_PATH = "src/resources/"
+
+    # Texturas
+    BULLET_1 = BASE_PATH + "img/bullet_1.PNG"
+    BULLET_2 = BASE_PATH + "img/bullet_2.PNG"
+    FONT_1 = BASE_PATH + "img/space_font_1.jpg"
+    FONT_2 = BASE_PATH + "img/space_font_2.png"
+    FONT_3 = BASE_PATH + "img/space_font_3.jpg"
+    POWER_UP = BASE_PATH + "img/power_up.PNG"
+    POWER_UP_MINIGUN = BASE_PATH + "img/powerUp_minigun.PNG"
+    SHIP = BASE_PATH + "img/ship.PNG"
+    ENEMY = BASE_PATH + "img/enemy.PNG"
+    HEALTH = BASE_PATH + "img/health.PNG"
+    ROASTED_CHICKEN = BASE_PATH + "img/roasted_chicken.PNG"
+    METEOR = BASE_PATH + "img/meteor.PNG"
+    SATURN = BASE_PATH + "img/saturno.png"
+    PLANET_1 = BASE_PATH + "img/planet_1.png"
+    PLANET_2 = BASE_PATH + "img/planet_2.png"
+    BOOM = BASE_PATH + "img/boom.png"
+
+    # Estilos de palabras
+    DEFAULT_FONT = BASE_PATH + "fonts/VeniteAdoremus-rgRBA.ttf"
+
+    # Sonidos
+    BUTTON_CLICK_SOUND = BASE_PATH + "sounds/button_sound.mp3"
+    LEVEL_BACKGROUND_SOUND = BASE_PATH + "sounds/level_sound.mp3"
+    POWER_UP_SOUND = BASE_PATH + "sounds/power_up_sound.mp3"
+    SHOOT_SOUND = BASE_PATH + "sounds/shoot_sound.mp3"
+    BOOM_SOUND = BASE_PATH + "sounds/boom_sound.mp3"
 class Img:
     Bullet_1 = py.image.load(ResourcePath.BULLET_1)
     Bullet_1 = py.transform.scale(Bullet_1, (40, 40))

@@ -4,6 +4,7 @@ from random import randint
 import pygame as py
 from typing import TYPE_CHECKING
 
+from src.services.SoundService import SoundService
 from src.model.RoastedChicken import RoastedChicken
 from src.model.Boom import Boom
 from src.model.Config import EnemyConfig
@@ -112,6 +113,7 @@ class EnemyService:
                     enemy.kill()
                     level.score += enemy.xp
                     self.killed_enemies.append(RoastedChicken(enemy=enemy))
+                    SoundService.play_boom_sound()
 
         return collisions
 

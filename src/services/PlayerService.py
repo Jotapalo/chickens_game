@@ -9,7 +9,9 @@ if TYPE_CHECKING:
 
 class PlayerService:
     def __init__(self, game_context: Game) -> None:
+        self.game_context = game_context
         self.screen = game_context.mainScreen
+        self.sound_service = game_context.services.get("sound_service")
         self.__cooldown_counter = 0
         self.bulletsGroup = py.sprite.Group()
         self.bullet_speed = game_context.parameters.get("bullet_speed")
@@ -23,9 +25,6 @@ class PlayerService:
     def bulletsList(self):
         """Mantiene compatibilidad con código que usa bulletsList."""
         return self.bulletsGroup.sprites()
-
-    def increment_counter (self) -> None:
-        self.__cooldown_counter += 1
 
     def player_movement(self) -> None:
         # Movimiento del jugador (antes PlayerMovementService, ahora encapsulado)
@@ -47,14 +46,21 @@ class PlayerService:
                             min(self.player.y, screen.get_height() - self.player.player_react.width // 2))
 
     def shoot_checker (self) -> None:
+        self.__cooldown_counter += 1
+
         # Disparo de balas cada self.cadence frames
         if self.__cooldown_counter >= self.cadence:
+            if self.sound_service == None:
+                self.sound_service = self.game_context.services.get("sound_service")
+            self.sound_service.play_shoot_sound()
             self.__cooldown_counter = 0
             new_bullet = Bullet(self.player.x, self.player.y,
                                 data=PlayerService.actual_ammo, 
                                 bullet_speed=self.bullet_speed,
                                 damage=self.bullet_damage)
             self.bulletsGroup.add(new_bullet)
+
+            
             
     def draw_bullets (self, screen) -> None: 
         # Actualizar y dibujar cada proyectil
