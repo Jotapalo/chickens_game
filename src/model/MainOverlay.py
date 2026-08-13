@@ -5,6 +5,7 @@ from src.model.Enum import Enum
 from src.services.PlayerService import PlayerService
 from src.model.PowerUp_minigun import PowerUp_minigun
 from src.model.PowerUp import PowerUp
+from src.services.ResourceService import ResourceService
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ class MainOverlay:
         self.level = game_context.level
 
         # === Nueva instancia de la imagen del jugador en la esquina inferior izquierda ===
-        self.player_icon = Enum.Image.Player_icon
+        self.player_icon = ResourceService.Player_icon
         self.player_icon_rect = self.player_icon.get_rect()
         # Posicionar en el borde inferior izquierdo con un pequeño margen
         self.player_icon_rect.topleft = (20, self.screen.height - self.player_icon_rect.height - 10)
@@ -28,21 +29,21 @@ class MainOverlay:
         # Barra de vida del jugador (esquina inferior izquierda)
         self.player_life_bar = LifeBar(self.screen.surface, 
                                        70,
-                                       self.screen.height - 30,
+                                       self.screen.height - 40,
                                        100,
-                                       10,
-                                       front_color=Enum.colorsMap.GREEN)
+                                       20,
+                                       "player")
 
         self.player_life_bar.config_life(self.player.player_max_life, self.player.player_max_life)
 
 
         # === Nueva instancia del Power Up activo de daño ===
-        self.powerUp_icon = Enum.Image.PowerUpDamage_1
+        self.powerUp_icon = ResourceService.PowerUpDamage_1
         self.powerUp_icon_rect = self.powerUp_icon.get_rect()
         self.powerUp_icon_rect.topleft = (20, self.player_icon_rect.y - 60)
 
         # == Nueva instancia del power Up activo de ametralladora
-        self.powerUpMinigun_icon = Enum.Image.PowerUp_minigun
+        self.powerUpMinigun_icon = ResourceService.PowerUp_minigun
         self.powerUpMinigun_icon_rect = self.powerUp_icon.get_rect()
         self.powerUpMinigun_icon_rect.topleft = (20, self.powerUp_icon_rect.y - 60)
 

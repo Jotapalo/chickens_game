@@ -2,18 +2,21 @@ from __future__ import annotations
 import time
 import pygame as py
 from src.model.Enum import Enum
-from src.model.TimerThread import TimerThread
-import threading
+from src.services.ResourceService import ResourceService
+
+
 class Player(py.sprite.Sprite):
-    def __init__(self, screen= None) -> None:
+    def __init__(self, screen=None) -> None:
         super().__init__()
         self.screen = screen
-        self.image = Enum.Image.Player
+        self.image = ResourceService.BattheShip_collection[4]
         self.rect = self.image.get_rect(center=(screen.get_width() / 2, screen.get_height() / 2))
         self.player_max_life = 100
         self.player_life = self.player_max_life
         self.can_damaged = True
         self.player_draw = True
+        # Temporizador de invulnerabilidad basado en time.time() (sin hilos)
+        self._invulnerable_until = 0.0
 
     # Propiedades para mantener compatibilidad con código que usa .x y .y
     @property
@@ -45,6 +48,9 @@ class Player(py.sprite.Sprite):
         enemy.damage y el enemigo pasa a can_damage = False para no
         seguir haciendo daño en colisiones posteriores (efecto "one shot").
 
+        La invulnerabilidad se gestiona con un temporizador basado en
+        time.time() (sin crear hilos), comprobado en update_invulnerability().
+
         Args:
             enemies: Iterable de enemigos (lista, Group de pygame, etc.).
 
@@ -58,25 +64,31 @@ class Player(py.sprite.Sprite):
                 if self.can_damaged:
                     self.player_life -= enemy.damage
                     self.can_damaged = False
-
-                # Sistema de invulnerabilidad 
-                threading.Thread(target=self.can_damaged_protocol, daemon=True).start()
+                    # Activar invulnerabilidad de 2 segundos (parpadeo)
+                    self._invulnerable_until = time.time() + 2.0
+                    self.player_draw = False
                 return
         return collided_enemies
 
-    def can_damaged_protocol(self):
-        lapse = 2
-        divisions = 8
+    def update_invulnerability(self) -> None:
+        """Gestión del parpadeo de invulnerabilidad (llamar cada frame).
 
-        for i in range(divisions):
-            self.player_draw = not self.player_draw
-            time.sleep(lapse/divisions)
-            
-        self.player_draw = True
-        self.can_damaged = True
+        Durante los primeros 2 segundos tras recibir daño, el jugador
+        parpadea alternando player_draw. Al terminar el lapso, se restaura
+        el dibujo normal y la capacidad de recibir daño.
+        """
+        if not self.can_damaged:
+            remaining = self._invulnerable_until - time.time()
+            if remaining <= 0:
+                # Fin de la invulnerabilidad
+                self.can_damaged = True
+                self.player_draw = True
+            else:
+                # Parpadeo: alternar visibilidad con parpadeos rápidos
+                self.player_draw = (int(remaining * 8) % 2) == 0
 
-    def draw_player(self, rectangle:py.Rect | None = None) -> None: 
-        if rectangle == None:
+    def draw_player(self, rectangle: py.Rect | None = None) -> None:
+        if rectangle is None:
             rectangle = self.rect
         # Actualizar y dibujar al jugador
         if self.player_draw:

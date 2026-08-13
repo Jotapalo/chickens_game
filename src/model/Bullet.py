@@ -2,11 +2,13 @@ from typing import Literal
 
 import pygame as py
 from src.model.Enum import Enum
+from src.services.ResourceService import ResourceService
+
 
 class Bullet(py.sprite.Sprite):
     def __init__(self, pos_x, pos_y, data, bullet_speed=5, damage=1) -> None:
         super().__init__()
-        self.image = Enum.Image.Bullet_1 if data == 1 else Enum.Image.Bullet_2 # Cargar la bala 1 o la bala 2
+        self.image = ResourceService.Bullet_1 if data == 1 else ResourceService.Bullet_2 # Cargar la bala 1 o la bala 2
 
         self.damage = damage
         self.rect = self.image.get_rect(center=(pos_x, pos_y))

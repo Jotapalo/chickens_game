@@ -15,8 +15,8 @@ class Level_1(Level):
       segundo 5 enemigos con 10 de vida y tercero un enemigo con 30 de vida"""
     def __init__(self, game_context: Game):
         self.lock = False
-        self.enemySVC: EnemyService = game_context.services["enemy_service"]
-        self.playerSVC: PlayerService = game_context.services["player_service"]
+        self.enemySVC: EnemyService = game_context.enemy_service
+        self.playerSVC: PlayerService = game_context.player_service
         self.screen = game_context.mainScreen
         self.message_overlay = game_context.layout["message_overlay"]
         self.game = game_context
