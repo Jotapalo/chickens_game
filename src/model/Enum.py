@@ -8,7 +8,9 @@ class ColorsMap:
 class ResourcePath:
     BASE_PATH = "src/resources/"
 
+
     # Texturas
+    BULLET_SPRITESHEET = BASE_PATH + "img/bullet_spritesheet.png"
     BULLET_1 = BASE_PATH + "img/bullet_1.PNG"
     BULLET_2 = BASE_PATH + "img/bullet_2.PNG"
     FONT_1 = BASE_PATH + "img/space_font_1.jpg"
@@ -20,11 +22,19 @@ class ResourcePath:
     ENEMY = BASE_PATH + "img/enemy.PNG"
     HEALTH = BASE_PATH + "img/health.PNG"
     ROASTED_CHICKEN = BASE_PATH + "img/roasted_chicken.PNG"
-    METEOR = BASE_PATH + "img/meteor.PNG"
     SATURN = BASE_PATH + "img/saturno.png"
     PLANET_1 = BASE_PATH + "img/planet_1.png"
     PLANET_2 = BASE_PATH + "img/planet_2.png"
     BOOM = BASE_PATH + "img/boom.png"
+
+    # Carpetas de imagen
+    ASTEROID_PATH = BASE_PATH + "img/asteroid/"
+    BATTLE_SHIP_PATH = BASE_PATH + "img/battleShip/"
+    
+    LIFEBAR_PATH = BASE_PATH + "lifebar/"
+    EMPTY_LIFEBAR = LIFEBAR_PATH + "empty_bg/"
+    PLAYER_LIFEBAR = LIFEBAR_PATH + "player_bar/"
+    ENEMY_LIFEBAR = LIFEBAR_PATH + "enemy_bar/"
 
     # Estilos de palabras
     DEFAULT_FONT = BASE_PATH + "fonts/VeniteAdoremus-rgRBA.ttf"
@@ -35,12 +45,10 @@ class ResourcePath:
     POWER_UP_SOUND = BASE_PATH + "sounds/power_up_sound.mp3"
     SHOOT_SOUND = BASE_PATH + "sounds/shoot_sound.mp3"
     BOOM_SOUND = BASE_PATH + "sounds/boom_sound.mp3"
-class Img:
-    Bullet_1 = py.image.load(ResourcePath.BULLET_1)
-    Bullet_1 = py.transform.scale(Bullet_1, (40, 40))
-
-    Bullet_2 = py.image.load(ResourcePath.BULLET_2)
-    Bullet_2 = py.transform.scale(Bullet_2, (40, 40))
+    
+"""class Img:
+    Bullet_1 = None
+    Bullet_2 = None
 
     Player = py.image.load(ResourcePath.SHIP)
     Player = py.transform.scale(Player, (70, 70))
@@ -59,9 +67,6 @@ class Img:
     RoastedChicken = py.image.load(ResourcePath.ROASTED_CHICKEN)
     RoastedChicken = py.transform.scale(RoastedChicken, (70,70))
 
-    Meteor = py.image.load(ResourcePath.METEOR)
-    Meteor = py.transform.scale(Meteor, (200, 200))
-
     Saturn = py.image.load(ResourcePath.SATURN)
     Saturn = py.transform.scale(Saturn, (300, 300))
 
@@ -71,12 +76,21 @@ class Img:
     Planet_2 = py.image.load(ResourcePath.PLANET_2)
     Planet_2 = py.transform.scale(Planet_2, (300, 300))
 
+    Asteroid_collection = []
+    for i in range(11):
+        Asteroid_collection.append(
+            py.image.load(ResourcePath.ASTEROID_PATH+f"spin-{i:02d}.png")
+        )
+
+    BattheShip_collection = []
+    for i in range(1,10):
+        BattheShip_collection.append(
+            py.transform.scale(py.image.load(ResourcePath.BATTLE_SHIP_PATH+f"redfighter000{i}.png"), (80,80))  
+        )
+"""
 
 
 class Enum:
-    def __init__(self):
-        pass
     colorsMap = ColorsMap()
     resourcePath = ResourcePath()
-    Image = Img()
     

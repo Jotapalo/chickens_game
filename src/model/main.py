@@ -10,7 +10,9 @@ from src.model.MessageOverlay import MessageOverlay
 from src.model.Game import Game
 from src.model.MainOverlay import MainOverlay
 from src.model.EventGen import EventGen
+from src.model.Boom import Boom
 from src.services.SoundService import SoundService
+from src.services.ResourceService import ResourceService
 
 
 GameInstance = Game()
@@ -26,8 +28,10 @@ parameters = {
     'level': int(args.get('level', '1')),
     "bullet_speed": int(args.get('bullet_speed', '20')),
     "debug": args.get('debug', 'false').lower() == 'true',
-    "fps": int(args.get('fps', '100'))
+    "fps": int(args.get('fps', '60'))
 }
+
+Game.FPS = parameters.get("fps")
 
 for k, v in parameters.items():
     GameInstance.parameters[k] = v
@@ -36,7 +40,7 @@ for k, v in parameters.items():
 LEVEL = int(args.get('level', '1'))
 BULLET_SPEED = int(args.get('bullet_speed', '20'))
 DEBUG = args.get('debug', 'false').lower() == 'true'
-FPS = int(args.get('fps', '100'))
+FPS = int(args.get('fps', '60'))
 
 print(f"Iniciando Chickens Game - Nivel {LEVEL}")
 if DEBUG:
@@ -50,18 +54,24 @@ py.init()
 
 # Setup window display info
 screen = Screen(width=900, height=600)
-player = Player(screen=screen.surface)
-
 GameInstance.mainScreen = screen
+
+ResourceService.load()
+
+player = Player(screen=screen.surface)
 GameInstance.entities["player"] = player
 
 # Servicios
 PlayerSVC = PlayerService(GameInstance)
-EnemySVC = EnemyService(GameInstance)
+GameInstance.player_service = PlayerSVC
 
-GameInstance.services["player_service"] = PlayerSVC
-GameInstance.services["enemy_service"] = EnemySVC
-GameInstance.services["sound_service"] = SoundService
+EnemySVC = EnemyService(GameInstance)
+GameInstance.enemy_service = EnemySVC
+
+# Pre-cargar recursos costosos ANTES del bucle para evitar tirones puntuales
+# durante la partida (audio y spritesheet de explosión).
+SoundService.preload_all()
+Boom._load_frames()
 
 running = True
 EventGenerator = EventGen(GameInstance)
@@ -71,13 +81,13 @@ EventGenerator.powerUp_CFG = PowerUpConfig(duration=15,
                                            rangex=[0, 900],
                                            rangey=0,
                                            damage=10,
-                                           probability = 100)
+                                           probability=100)
 EventGenerator.powerUpMinigun_CFG = PowerUpMinigunConfig(duration=5,
                                            fall_speed=1.5,
                                            rangex=[0, 900],
                                            rangey=0,
                                            fire_speed=7,
-                                           probability = 100)
+                                           probability=100)
 EventGenerator.health_CFG = HealthConfig(fall_speed=1.5,
                                          rangex=[0, 900],
                                          rangey=0,
@@ -95,6 +105,12 @@ mainOverlay = MainOverlay(GameInstance)
 GameInstance.layout["main_overlay"] = mainOverlay
 
 SoundService.play_music_background()
+
+
+# Un único Clock reutilizado en el bucle (evitar crear uno por frame)
+clock = py.time.Clock()
+
+
 # Game loop
 while running:
     # Eventos
@@ -133,7 +149,6 @@ while running:
     # Dibujar fondo
     screen.draw_background()
 
-
     # Servicios de movimiento
     PlayerSVC.player_movement()
     EnemySVC.move_enemies()
@@ -157,6 +172,9 @@ while running:
         if boom.finished:
             EnemySVC.booms.remove(boom)
 
+    # Gestión de la invulnerabilidad del jugador (parpadeo y restauración)
+    player.update_invulnerability()
+
     # Si el jugador puede ser dañado, verifica sus colisiones
     if player.can_damaged:
         player.check_collisions(EnemySVC.enemiesCollection)
@@ -175,5 +193,4 @@ while running:
 
     # Actualizar pantalla y tasa de fotogramas
     py.display.flip()
-    py.time.Clock().tick(FPS)
-
+    clock.tick(FPS)

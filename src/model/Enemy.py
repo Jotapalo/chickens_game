@@ -1,6 +1,6 @@
 import pygame as py
 from src.model.Config import EnemyConfig
-from src.model.Enum import Enum
+from src.services.ResourceService import ResourceService
 from src.model.LifeBar import LifeBar
 
 class Enemy(py.sprite.Sprite):
@@ -11,14 +11,14 @@ class Enemy(py.sprite.Sprite):
         self.max_life = enemy_config.life
         self.life = enemy_config.life
         self.width, self.height = enemy_config.size
-        self.lifeBar = LifeBar(screen, posx, posy, self.width, 10)
+        self.lifeBar = LifeBar(screen, posx, posy + 10, self.width, 17, "enemy")
         self.enable_lifebar = True
         self.damage = enemy_config.damage
         self.xp = enemy_config.xp
         self.can_damage = True
         self.isAlive = True
 
-        self.image = py.transform.scale(Enum.Image.Enemy, (self.width, self.height))
+        self.image = py.transform.scale(ResourceService.Enemy, (self.width, self.height))
         self.rect = self.image.get_rect(center=(posx, posy))
 
     # Propiedades para mantener compatibilidad con código que usa .x y .y

@@ -1,13 +1,13 @@
 import random
 import pygame as py
 from src.model.Enemy import Enemy
-from src.model.Enum import Enum
+from src.services.ResourceService import ResourceService
 
 class RoastedChicken(py.sprite.Sprite):
     def __init__(self, enemy: Enemy):
         super().__init__()
         self.screen = enemy.screen  # Surface de pygame
-        self.image = Enum.Image.RoastedChicken
+        self.image = ResourceService.RoastedChicken
         self.rect = self.image.get_rect(center=(enemy.x, enemy.y))
 
         # Trayectoria parabólica (con parámetros aleatorios por instancia)

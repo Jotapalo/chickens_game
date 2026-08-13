@@ -56,6 +56,19 @@ class SoundService:
         return cls._boom_sound
 
     @classmethod
+    def preload_all(cls) -> None:
+        """Pre-carga todos los efectos de sonido de una sola vez.
+
+        Se llama una vez al iniciar el juego (después de py.init()) para
+        evitar tirones puntuales provocados por la carga perezosa del
+        primer sonido en plena partida.
+        """
+        cls._init_mixer()
+        cls._load_shoot()
+        cls._load_power_up()
+        cls._load_boom()
+
+    @classmethod
     def play_boom_sound(cls):
         """Reproduce el sonido boom cuando se elimina un enemigo"""
         cls._load_boom().play(0)
@@ -94,4 +107,3 @@ class SoundService:
     def resume_music_background(cls) -> None:
         """Reanuda la música de fondo pausada."""
         py.mixer.music.unpause()
-

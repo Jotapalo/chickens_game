@@ -3,7 +3,7 @@ import time
 from src.model.PowerUp import PowerUp
 from src.model.PowerUp_minigun import PowerUp_minigun
 from src.model.Health import Health
-from src.model.Config import PowerUpConfig, HealthConfig, PowerUpMinigunConfig, MeteorConfig
+from src.model.Config import PowerUpConfig, HealthConfig, PowerUpMinigunConfig
 from src.model.Meteor import Meteor
 from random import randint
 from typing import TYPE_CHECKING
@@ -13,14 +13,14 @@ if TYPE_CHECKING:
 
 class EventGen:
     """Encargado de la generacion de eventos dentro del bucle del principal del juego
-    """    
+    """
     def __init__(self, game_context: Game) -> None:
         self.powerUps: list[PowerUp | PowerUp_minigun] = list()
         self.healths: list[Health] = list()
         self.meteors: list[Meteor] = list()
         self.screen = game_context.mainScreen
         self.player = game_context.entities.get("player")
-        self.player_service = game_context.services.get("player_service")
+        self.player_service = game_context.player_service
 
         self.powerUp_CFG = PowerUpConfig()
         self.health_CFG = HealthConfig()
@@ -70,7 +70,6 @@ class EventGen:
                 new_powerup = PowerUp(self.powerUp_CFG)
                 new_powerup.player_service = self.player_service
                 self.powerUps.append(new_powerup)
-                print("Power Up Spawned")
 
         # Power-up minigun
         if self.powerUpMinigun_timer >= self.powerUp_delay:
@@ -79,7 +78,6 @@ class EventGen:
                 new_powerup = PowerUp_minigun(self.powerUpMinigun_CFG)
                 new_powerup.player_service = self.player_service
                 self.powerUps.append(new_powerup)
-                print("Power Up Minigun Spawned")
 
         # Power-up de vida (Health)
         if self.health_timer >= self.powerUp_delay:
@@ -87,22 +85,18 @@ class EventGen:
             if randint(0, 100) <= self.health_CFG.probability:
                 new_health = Health(self.health_CFG)
                 self.healths.append(new_health)
-                print("Health Spawned")
 
         # Generacion de meteoritos
-        if self.meteor_timer >= 12:
+        if self.meteor_timer >= 7:
             self.meteor_timer = 0.0
             meteor = Meteor(self.screen)
             self.meteors.append(meteor)
-            print("Meteor Spawned")
-
 
         if self.planet_timer >= 10:
             self.planet_timer = 0.0
             self.screen.summon_planet(["saturn", "planet_1", "planet_2"][randint(0,2)],
                                         randint(50, 100) if randint(0, 1) == 1 else randint(800, 850),
                                         -300)
-            print("Planet spawned")
 
     def checker(self):
         # Calcular el delta de tiempo real transcurrido desde el último frame
@@ -146,9 +140,9 @@ class EventGen:
                 self.healths.remove(health)
 
         # Actualizar y mover los meteoritos. draw_and_move devuelve True cuando
-        # el meteorito salió por completo de la pantalla; entonces lo eliminamos
-        # de la lista para liberar la referencia y que el GC lo borre.
+        # el meteorito salió por completo de la pantalla o golpeó al jugador;
+        # entonces lo eliminamos de la lista para liberar la referencia.
         for meteor in self.meteors[:]:
-            salio_de_pantalla = meteor.draw_and_move(self.screen.surface)
-            if salio_de_pantalla:
+            withtout_limits = meteor.draw_and_move(self.screen.surface, player=self.player)
+            if withtout_limits:
                 self.meteors.remove(meteor)

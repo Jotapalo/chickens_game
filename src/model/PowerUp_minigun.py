@@ -1,6 +1,6 @@
 from __future__ import annotations
 import pygame as py
-from src.model.Enum import Enum
+from src.services.ResourceService import ResourceService
 from src.model.TimerThread import TimerThread
 from src.services.SoundService import SoundService
 from random import randint
@@ -21,7 +21,7 @@ class PowerUp_minigun(py.sprite.Sprite):
         super().__init__()
         self.screen = screen
         self.player_service: PlayerService | None = None
-        self.image = Enum.Image.PowerUp_minigun
+        self.image = ResourceService.PowerUp_minigun
 
         self.powerUp_CFG = powerUp_CFG
         rangex = randint(*self.powerUp_CFG.x) if isinstance(self.powerUp_CFG.x, list) else self.powerUp_CFG.x
@@ -97,13 +97,11 @@ class PowerUp_minigun(py.sprite.Sprite):
     def power_up_timeout(self) -> None:
         PowerUp_minigun.power_up_active = False
         PowerUp_minigun.timer = None  # El timer terminó, lo limpiamos
-        print("El power-up minigun ha expirado.")
         if self.player_service:
             self.player_service.cadence = 20
 
     def activate_power_up(self):
         PowerUp_minigun.power_up_active = True
-        print("Power-up minigun activado.")
         if self.player_service:
             self.player_service.cadence = 7
 

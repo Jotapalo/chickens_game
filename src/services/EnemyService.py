@@ -24,8 +24,11 @@ class EnemyService:
 
     @property
     def enemiesCollection(self):
-        """Mantiene compatibilidad con código que usa enemiesCollection."""
-        return list(self._enemiesGroup.sprites())
+        """Mantiene compatibilidad con código que usa enemiesCollection.
+
+        sprites() ya devuelve una lista nueva, por lo que se evita una
+        copia redundante si se llama una vez por frame."""
+        return self._enemiesGroup.sprites()
 
     def new_enemy(self, posx, posy, enemy_config: EnemyConfig):
         return Enemy(self.screen, posx, posy, enemy_config)
@@ -150,4 +153,3 @@ generar un patron de aleatoriedad entre posiciones de enemigos.
 
 
         return final_coo
-
